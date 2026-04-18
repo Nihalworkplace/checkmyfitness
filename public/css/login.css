@@ -1,0 +1,360 @@
+/* ============================================================
+   CheckMyFitness — Login Page Styles
+   ============================================================ */
+
+/* ── Reset & Tokens ─────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --color-dark:    #0A1628;
+  --color-green:   #1D9E75;
+  --color-green-l: #4ADE80;
+  --color-green-d: #0F6E56;
+  --color-red:     #EF4444;
+  --color-blue:    #3B82F6;
+  --color-blue-d:  #1E40AF;
+  --color-purple:  #8B5CF6;
+  --color-purple-d:#5B21B6;
+  --color-muted:   #64748B;
+  --color-border:  #E2EDE9;
+  --color-surface: #F1F5F9;
+
+  --font-display: 'Fraunces', serif;
+  --font-body:    'DM Sans', sans-serif;
+
+  --radius-card:   28px;
+  --radius-input:  12px;
+  --radius-tab:    11px;
+  --radius-badge:  10px;
+}
+
+/* ── Page Layout ─────────────────────────────────────────── */
+body {
+  min-height: 100vh;
+  background: var(--color-dark);
+  font-family: var(--font-body);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Flex spacers — center the card when the viewport has room;
+   they collapse automatically when content is taller than viewport */
+body::before,
+body::after {
+  content: '';
+  flex: 1;
+}
+
+/* ── Background Decorations ──────────────────────────────── */
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(29, 158, 117, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(29, 158, 117, 0.06) 1px, transparent 1px);
+  background-size: 52px 52px;
+  pointer-events: none;
+}
+
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.glow--top-right {
+  width: 600px;
+  height: 600px;
+  right: -180px;
+  top: -180px;
+  background: radial-gradient(circle, rgba(29, 158, 117, 0.14), transparent 65%);
+}
+
+.glow--bottom-left {
+  width: 350px;
+  height: 350px;
+  left: -100px;
+  bottom: -100px;
+  background: radial-gradient(circle, rgba(74, 222, 128, 0.08), transparent 65%);
+}
+
+/* ── Card ────────────────────────────────────────────────── */
+.login-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-card);
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 440px;
+  backdrop-filter: blur(24px);
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Brand ───────────────────────────────────────────────── */
+.brand {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.brand__logo {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 900;
+  color: #fff;
+}
+
+.brand__logo span {
+  color: var(--color-green-l);
+}
+
+.brand__tagline {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.3);
+  margin-top: 4px;
+}
+
+/* ── Role Tabs ───────────────────────────────────────────── */
+.role-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 4px;
+  gap: 3px;
+  margin-bottom: 28px;
+}
+
+.role-tab {
+  padding: 11px 6px;
+  border-radius: var(--radius-tab);
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.4);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  background: none;
+  font-family: var(--font-body);
+}
+
+.role-tab:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.role-tab[data-role="parent"].active { background: var(--color-green);  color: #fff; }
+.role-tab[data-role="doctor"].active { background: var(--color-blue);   color: #fff; }
+.role-tab[data-role="admin"].active  { background: var(--color-purple); color: #fff; }
+
+/* ── Panels ──────────────────────────────────────────────── */
+.panel {
+  display: none;
+}
+
+.panel.active {
+  display: block;
+}
+
+/* ── Login-type Toggle (parent) ──────────────────────────── */
+.login-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.login-toggle__btn {
+  flex: 1;
+  padding: 9px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  background: none;
+  color: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-body);
+}
+
+.login-toggle__btn.active {
+  background: rgba(29, 158, 117, 0.2);
+  border-color: var(--color-green);
+  color: var(--color-green-l);
+}
+
+/* ── Info Box ────────────────────────────────────────────── */
+.info-box {
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+}
+
+.info-box p {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+}
+
+.info-box strong {
+  color: #93C5FD;
+}
+
+/* ── Form Fields ─────────────────────────────────────────── */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-input);
+  padding: 13px 16px;
+  color: #fff;
+  font-size: 14px;
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  border-color: rgba(29, 158, 117, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.form-input::placeholder {
+  color: rgba(255, 255, 255, 0.22);
+}
+
+.form-input--uppercase {
+  text-transform: uppercase;
+}
+
+.form-hint {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.25);
+  margin-top: 5px;
+}
+
+/* ── Submit Buttons ──────────────────────────────────────── */
+.submit-btn {
+  width: 100%;
+  border: none;
+  border-radius: var(--radius-input);
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  font-family: var(--font-body);
+  margin-top: 8px;
+  transition: all 0.2s;
+}
+
+.submit-btn:active {
+  transform: scale(0.98);
+}
+
+.submit-btn--parent { background: var(--color-green);  }
+.submit-btn--parent:hover { background: var(--color-green-d);  }
+
+.submit-btn--doctor { background: var(--color-blue);   }
+.submit-btn--doctor:hover { background: var(--color-blue-d);   }
+
+.submit-btn--admin  { background: var(--color-purple); }
+.submit-btn--admin:hover  { background: var(--color-purple-d); }
+
+/* ── Error Alert ─────────────────────────────────────────── */
+.error-box {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-badge);
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: #FCA5A5;
+  line-height: 1.5;
+}
+
+/* ── Demo Credentials ────────────────────────────────────── */
+.demo-box {
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.35);
+  text-align: center;
+  line-height: 1.7;
+}
+
+.demo-box strong {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 480px) {
+  body {
+    padding: 16px;
+  }
+
+  .login-card {
+    padding: 22px 16px;
+    border-radius: 20px;
+  }
+
+  .role-tabs {
+    gap: 2px;
+  }
+
+  .role-tab {
+    padding: 9px 4px;
+    font-size: 11px;
+  }
+
+  .info-box {
+    padding: 10px 12px;
+  }
+
+  .info-box p {
+    font-size: 11px;
+  }
+
+  .form-input {
+    padding: 11px 13px;
+    font-size: 13px;
+  }
+
+  .submit-btn {
+    padding: 13px;
+    font-size: 14px;
+  }
+
+  .demo-box {
+    font-size: 11px;
+    padding: 12px;
+  }
+}

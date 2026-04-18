@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\SchoolController as AdminSchoolController;
 use App\Http\Controllers\Admin\SessionController as AdminSessionController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\CommunityController as AdminCommunityController;
+use App\Http\Controllers\Admin\ImportController as AdminImportController;
 use App\Http\Controllers\Doctor\CheckupController;
 use App\Http\Controllers\Parent\DashboardController as ParentDashboard;
 use Illuminate\Support\Facades\Route;
@@ -53,11 +54,13 @@ Route::prefix('admin')
     Route::get('/parents',               [AdminUserController::class, 'parents'])->name('parents');
     Route::get('/parents/create',        [AdminUserController::class, 'createParent'])->name('parents.create');
     Route::post('/parents',              [AdminUserController::class, 'storeParent'])->name('parents.store');
+    Route::get('/parents/{parent}',      [AdminUserController::class, 'showParent'])->name('parents.show');
 
     // Student management
     Route::get('/students',              [AdminUserController::class, 'students'])->name('students');
     Route::get('/students/create',       [AdminUserController::class, 'createStudent'])->name('students.create');
     Route::post('/students',             [AdminUserController::class, 'storeStudent'])->name('students.store');
+    Route::get('/students/{student}',    [AdminUserController::class, 'showStudent'])->name('students.show');
 
     // Session management
     Route::get('/sessions',              [AdminSessionController::class, 'index'])->name('sessions.index');
@@ -81,6 +84,14 @@ Route::prefix('admin')
     Route::get('/schools/{school}/edit',       [AdminSchoolController::class, 'edit'])->name('schools.edit');
     Route::put('/schools/{school}',            [AdminSchoolController::class, 'update'])->name('schools.update');
     Route::patch('/schools/{school}/toggle',   [AdminSchoolController::class, 'toggle'])->name('schools.toggle');
+
+    // Import — Students+Parents (school-level) & Doctors
+    Route::get('/schools/{school}/import',       [AdminImportController::class, 'studentsForm'])->name('import.students.form');
+    Route::post('/schools/{school}/import',      [AdminImportController::class, 'studentsImport'])->name('import.students');
+    Route::get('/doctors/import',                [AdminImportController::class, 'doctorsForm'])->name('import.doctors.form');
+    Route::post('/doctors/import',               [AdminImportController::class, 'doctorsImport'])->name('import.doctors');
+    Route::get('/samples/students',              [AdminImportController::class, 'sampleStudents'])->name('import.sample.students');
+    Route::get('/samples/doctors',               [AdminImportController::class, 'sampleDoctors'])->name('import.sample.doctors');
 
     // Community
     Route::get('/community',                         [AdminCommunityController::class, 'index'])->name('community.index');

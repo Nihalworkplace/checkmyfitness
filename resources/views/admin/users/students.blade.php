@@ -15,7 +15,7 @@
 <div class="card">
   <div class="tw">
     <table>
-      <thead><tr><th>Student</th><th>Reference Code</th><th>School</th><th>Class</th><th>Parent</th><th>Age</th><th>Status</th></tr></thead>
+      <thead><tr><th>Student</th><th>Reference Code</th><th>School</th><th>Class</th><th>Parent</th><th>Age</th><th>Status</th><th></th></tr></thead>
       <tbody>
         @forelse($students as $s)
           <tr>
@@ -31,6 +31,7 @@
             <td>{{ $s->parent->name }}</td>
             <td>{{ $s->age }}</td>
             <td><span class="badge {{ $s->is_active?'bg':'br' }}">{{ $s->is_active?'Active':'Inactive' }}</span></td>
+            <td><a href="{{ route('admin.students.show', $s) }}" class="btn btn-out btn-sm">View</a></td>
           </tr>
         @empty
           <tr><td colspan="7" style="text-align:center;padding:24px;color:var(--gr);">No students yet. <a href="{{ route('admin.students.create') }}" style="color:var(--g);">Add one →</a></td></tr>

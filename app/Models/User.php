@@ -12,14 +12,37 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasRoles, SoftDeletes;
 
+    // Doctor specialist types with their labels
+    public const DOCTOR_TYPES = [
+        'general_physician' => 'General Physician / MBBS',
+        'dentist'           => 'Dentist',
+        'eye_specialist'    => 'Eye Specialist / Optometrist',
+        'audiologist_ent'   => 'Audiologist / ENT',
+        'physiotherapist'   => 'Physiotherapist',
+        'psychologist'      => 'Psychologist / Counselor',
+        'lab_technician'    => 'Lab Technician / Phlebotomist',
+    ];
+
+    // Which checkup parameter groups each doctor type can access
+    public const DOCTOR_TYPE_SECTIONS = [
+        'general_physician' => ['physical', 'skin'],
+        'dentist'           => ['dental'],
+        'eye_specialist'    => ['eye'],
+        'audiologist_ent'   => ['hearing'],
+        'physiotherapist'   => ['musculoskeletal'],
+        'psychologist'      => ['mental'],
+        'lab_technician'    => ['lab'],
+    ];
+
     protected $fillable = [
         'name',
         'email',
         'password',
         'staff_code',
+        'license_number',
+        'doctor_type',
         'reference_code',
         'phone',
-        'school_name',
         'is_active',
     ];
 

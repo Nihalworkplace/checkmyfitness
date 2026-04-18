@@ -26,6 +26,7 @@
           <th>Students</th>
           <th>Ref Code</th>
           <th>Status</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -54,6 +55,7 @@
             <td>
               <span class="badge {{ $p->is_active ? 'bg' : 'br' }}">{{ $p->is_active ? 'Active' : 'Inactive' }}</span>
             </td>
+            <td><a href="{{ route('admin.parents.show', $p) }}" class="btn btn-out btn-sm">View</a></td>
           </tr>
         @empty
           <tr>

@@ -9,49 +9,43 @@
 @endsection
 
 @push('head')
-<style>
-.param-group{background:#fff;border:1.5px solid var(--bd);border-radius:14px;margin-bottom:14px;overflow:hidden;}
-.pg-head{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--dk);}
-.pg-ico{font-size:16px;}
-.pg-title{font-size:11px;font-weight:800;color:rgba(255,255,255,.8);letter-spacing:.5px;text-transform:uppercase;}
-.pg-count{margin-left:auto;font-size:10px;color:rgba(255,255,255,.35);}
-.pe{display:grid;grid-template-columns:140px 1fr 60px 90px;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--lgr);transition:background .15s;}
-.pe:last-child{border-bottom:none;}
-.pe:hover{background:#FAFEFF;}
-.pe.low{background:#FFF8F8;}
-.pe-name{font-size:12px;font-weight:600;color:var(--dk);}
-.pe-unit{font-size:9px;color:var(--gr);margin-top:1px;}
-.pe-norm{font-size:9px;color:var(--bd);}
-.slider{width:100%;height:5px;border-radius:3px;appearance:none;-webkit-appearance:none;outline:none;cursor:pointer;}
-.slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--g);box-shadow:0 1px 4px rgba(0,0,0,.15);cursor:pointer;}
-.numval{width:56px;height:34px;border:1.5px solid var(--bd);border-radius:8px;text-align:center;font-size:14px;font-weight:700;outline:none;transition:border-color .2s;}
-.numval:focus{border-color:var(--g);}
-.status-pill{font-size:10px;font-weight:700;padding:4px 9px;border-radius:8px;white-space:nowrap;}
-.qs-row{display:flex;gap:5px;}
-.qs{flex:1;padding:7px 5px;border-radius:7px;font-size:11px;font-weight:700;border:1.5px solid var(--bd);background:#fff;color:var(--gr);cursor:pointer;text-align:center;transition:all .15s;}
-.qs:hover{border-color:var(--g);color:var(--g);}
-.qs.on{border-color:transparent;color:#fff;}
-@media(max-width:700px){
-  .pe{grid-template-columns:100px 1fr 44px;gap:6px;}
-  .status-pill{display:none;}
-}
-</style>
+<link rel="stylesheet" href="{{ asset('css/checkup-form.css') }}" />
 @endpush
 
 @section('content')
+
+@php
+  // Sections this doctor can access
+  $sections = \App\Models\User::DOCTOR_TYPE_SECTIONS[$doctorType] ?? [];
+  $canSee = fn(string $s): bool => in_array($s, $sections);
+  $typeLabel = \App\Models\User::DOCTOR_TYPES[$doctorType] ?? 'Unknown';
+@endphp
+
 {{-- Student header --}}
-<div style="background:var(--dk);border-radius:16px;padding:18px 22px;margin-bottom:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-  <div style="width:50px;height:50px;border-radius:14px;background:{{ $student->gender==='M' ? '#3B82F6' : '#8B5CF6' }};display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;flex-shrink:0;">{{ strtoupper(substr($student->name,0,1)) }}</div>
-  <div style="flex:1;">
-    <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:900;color:#fff;">{{ $student->name }}</div>
-    <div style="font-size:12px;color:rgba(255,255,255,0.45);">Class {{ $student->class_section }} · {{ $student->gender==='M'?'Male':'Female' }} · Age {{ $student->age }} · Ref: {{ $student->reference_code }} · Blood: {{ $student->blood_group ?? 'Unknown' }}</div>
+<div class="page-header mb-16">
+  <div class="page-header__left">
+    <div class="avatar avatar--lg {{ $student->gender === 'M' ? 'avatar--male' : 'avatar--female' }}">
+      {{ strtoupper(substr($student->name, 0, 1)) }}
+    </div>
+    <div class="page-header__body">
+      <div class="page-header__title">{{ $student->name }}</div>
+      <div class="page-header__sub-sm">
+        Class {{ $student->class_section }} · {{ $student->gender === 'M' ? 'Male' : 'Female' }} · Age {{ $student->age }} · Ref: {{ $student->reference_code }} · Blood: {{ $student->blood_group ?? 'Unknown' }}
+      </div>
+    </div>
   </div>
-  <div style="text-align:right;">
+  <div class="text-right">
+    <div style="font-size:10px;color:var(--gr);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;">Your Role</div>
+    <span class="badge bb" style="font-size:11px;">{{ $typeLabel }}</span>
     @if($checkup)
-      <span class="badge {{ $checkup->status==='completed'?'bg':'by' }}" style="font-size:12px;padding:6px 14px;">{{ ucfirst($checkup->status) }}</span>
-      @if($checkup->overall_score)<div style="font-family:'Fraunces',serif;font-size:26px;font-weight:900;color:{{ $checkup->overall_score>=75?'#4ADE80':($checkup->overall_score>=55?'#FCD34D':'#EF4444') }};margin-top:4px;">{{ $checkup->overall_score }}<span style="font-size:14px;color:rgba(255,255,255,0.4);">/100</span></div>@endif
+      <span class="badge {{ $checkup->status === 'completed' ? 'bg' : 'by' }}" style="margin-left:4px;">{{ ucfirst($checkup->status) }}</span>
+      @if($checkup->overall_score)
+        <div style="font-family:var(--ff);font-size:26px;font-weight:900;color:{{ $checkup->overall_score>=75?'#4ADE80':($checkup->overall_score>=55?'#FCD34D':'#EF4444') }};margin-top:4px;">
+          {{ $checkup->overall_score }}<span style="font-size:14px;color:rgba(255,255,255,0.4);">/100</span>
+        </div>
+      @endif
     @else
-      <span class="badge bb" style="font-size:12px;padding:6px 14px;">New Checkup</span>
+      <span class="badge bb" style="margin-left:4px;">New Checkup</span>
     @endif
   </div>
 </div>
@@ -80,9 +74,10 @@
   }
 @endphp
 
-{{-- ── PHYSICAL & VITALS ── --}}
+{{-- ── PHYSICAL & VITALS — General Physician ── --}}
+@if($canSee('physical'))
 <div class="param-group">
-  <div class="pg-head"><div class="pg-ico">📏</div><div class="pg-title">Physical & Vitals</div><div class="pg-count">8 parameters</div></div>
+  <div class="pg-head"><div class="pg-ico">📏</div><div class="pg-title">Physical & Vitals</div><div class="pg-count">7 parameters</div></div>
 
   {{-- Height --}}
   @php $hVal = $v('height_cm') ?? 145; $hC = paramColor($hVal, 100, 200); @endphp
@@ -144,17 +139,32 @@
     <span class="status-pill" style="background:{{ $o2C }}18;color:{{ $o2C }};">{{ $o2Val>=95?'Normal':'⚠ Low O2' }}</span>
   </div>
 </div>
+@endif
 
-{{-- ── SENSORY ── --}}
+{{-- ── DENTAL — Dentist ── --}}
+@if($canSee('dental'))
 <div class="param-group">
-  <div class="pg-head"><div class="pg-ico">👁️</div><div class="pg-title">Sensory</div><div class="pg-count">5 parameters</div></div>
+  <div class="pg-head"><div class="pg-ico">🦷</div><div class="pg-title">Dental Health</div><div class="pg-count">1 parameter</div></div>
+  @php $dVal = $v('dental_score') ?? 7; $dC = $dVal>=7?'#1D9E75':($dVal>=5?'#F59E0B':'#EF4444'); @endphp
+  <div class="pe {{ $dVal < 5 ? 'low' : '' }}">
+    <div><div class="pe-name">Dental Health</div><div class="pe-unit">score /10 · normal: 7–10</div></div>
+    <input type="range" class="slider" id="sl-dental_score" min="1" max="10" value="{{ $dVal }}" style="accent-color:{{ $dC }};" oninput="sync('dental_score',this.value)"/>
+    <input type="number" class="numval" id="nv-dental_score" name="dental_score" value="{{ $dVal }}" min="1" max="10" style="color:{{ $dC }};" onchange="syncBack('dental_score',this.value)"/>
+    <span class="status-pill" style="background:{{ $dC }}18;color:{{ $dC }};">{{ $dVal>=7?'Good':($dVal>=5?'Average':'Low') }}</span>
+  </div>
+</div>
+@endif
+
+{{-- ── EYE — Eye Specialist ── --}}
+@if($canSee('eye'))
+<div class="param-group">
+  <div class="pg-head"><div class="pg-ico">👁️</div><div class="pg-title">Vision & Eye Health</div><div class="pg-count">3 parameters</div></div>
   <div class="pe" style="grid-template-columns:140px 1fr 1fr;">
     <div><div class="pe-name">Vision</div><div class="pe-unit">Snellen · normal: 20/20</div></div>
     <div><label style="font-size:10px;color:var(--gr);">Left Eye</label><input type="text" name="vision_left" class="numval" style="width:80px;" placeholder="20/20" value="{{ $v('vision_left') ?? '20/20' }}"/></div>
     <div><label style="font-size:10px;color:var(--gr);">Right Eye</label><input type="text" name="vision_right" class="numval" style="width:80px;" placeholder="20/20" value="{{ $v('vision_right') ?? '20/20' }}"/></div>
   </div>
   @foreach([
-    ['hearing', 'Hearing', ['Normal','Mild Issue','Needs Test'], ['#1D9E75','#F59E0B','#EF4444']],
     ['eye_strain', 'Eye Strain', ['None','Mild','Severe'], ['#1D9E75','#F59E0B','#EF4444']],
   ] as [$name, $label, $opts, $colors])
   <div class="pe" style="grid-template-columns:140px 1fr;">
@@ -169,19 +179,35 @@
     <input type="hidden" name="{{ $name }}" id="qv-{{ $name }}" value="{{ $v($name) ?? $opts[0] }}"/>
   </div>
   @endforeach
-  {{-- Dental --}}
-  @php $dVal = $v('dental_score') ?? 7; $dC = $dVal>=7?'#1D9E75':($dVal>=5?'#F59E0B':'#EF4444'); @endphp
-  <div class="pe {{ $dVal < 5 ? 'low' : '' }}">
-    <div><div class="pe-name">Dental Health</div><div class="pe-unit">score /10 · normal: 7–10</div></div>
-    <input type="range" class="slider" id="sl-dental_score" min="1" max="10" value="{{ $dVal }}" style="accent-color:{{ $dC }};" oninput="sync('dental_score',this.value)"/>
-    <input type="number" class="numval" id="nv-dental_score" name="dental_score" value="{{ $dVal }}" min="1" max="10" style="color:{{ $dC }};" onchange="syncBack('dental_score',this.value)"/>
-    <span class="status-pill" style="background:{{ $dC }}18;color:{{ $dC }};">{{ $dVal>=7?'Good':($dVal>=5?'Average':'Low') }}</span>
-  </div>
 </div>
+@endif
 
-{{-- ── LAB & BIOCHEMICAL ── --}}
+{{-- ── HEARING — Audiologist/ENT ── --}}
+@if($canSee('hearing'))
 <div class="param-group">
-  <div class="pg-head"><div class="pg-ico">🩸</div><div class="pg-title">Lab & Biochemical</div><div class="pg-count">4 parameters</div></div>
+  <div class="pg-head"><div class="pg-ico">👂</div><div class="pg-title">Hearing Assessment</div><div class="pg-count">1 parameter</div></div>
+  @foreach([
+    ['hearing', 'Hearing', ['Normal','Mild Issue','Needs Test'], ['#1D9E75','#F59E0B','#EF4444']],
+  ] as [$name, $label, $opts, $colors])
+  <div class="pe" style="grid-template-columns:140px 1fr;">
+    <div><div class="pe-name">{{ $label }}</div></div>
+    <div class="qs-row">
+      @foreach($opts as $oi => $opt)
+        <button type="button" class="qs {{ $v($name)===$opt?'on':'' }}"
+          style="{{ $v($name)===$opt?'background:'.$colors[$oi].';border-color:'.$colors[$oi]:'' }}"
+          onclick="setQuick('{{ $name }}','{{ $opt }}','{{ $colors[$oi] }}',this)">{{ $opt }}</button>
+      @endforeach
+    </div>
+    <input type="hidden" name="{{ $name }}" id="qv-{{ $name }}" value="{{ $v($name) ?? $opts[0] }}"/>
+  </div>
+  @endforeach
+</div>
+@endif
+
+{{-- ── LAB & BIOCHEMICAL — Lab Technician ── --}}
+@if($canSee('lab'))
+<div class="param-group">
+  <div class="pg-head"><div class="pg-ico">🧪</div><div class="pg-title">Lab & Biochemical</div><div class="pg-count">4 parameters</div></div>
   @php $hbVal = $v('haemoglobin_gdl') ?? ($student->gender==='F' ? 12 : 13); $lo = $student->gender==='F' ? 11.5 : 13; $hbC = paramColor($hbVal, $lo, 17); @endphp
   <div class="pe {{ $hbVal < $lo ? 'low' : '' }}">
     <div><div class="pe-name">Haemoglobin</div><div class="pe-unit">g/dL · normal: {{ $lo }}–17</div></div>
@@ -212,8 +238,10 @@
     <span class="status-pill" style="background:{{ $bsC }}18;color:{{ $bsC }};">{{ $bsVal>=70&&$bsVal<=140?'Normal':($bsVal<70?'Low':'High') }}</span>
   </div>
 </div>
+@endif
 
-{{-- ── MUSCULOSKELETAL ── --}}
+{{-- ── MUSCULOSKELETAL — Physiotherapist ── --}}
+@if($canSee('musculoskeletal'))
 <div class="param-group">
   <div class="pg-head"><div class="pg-ico">🦴</div><div class="pg-title">Musculoskeletal</div><div class="pg-count">4 parameters</div></div>
   @foreach([
@@ -234,8 +262,10 @@
     <span class="status-pill" style="background:{{ $gsC }}18;color:{{ $gsC }};">{{ $gsVal>=6?'Good':($gsVal>=4?'Average':'Low') }}</span>
   </div>
 </div>
+@endif
 
-{{-- ── WELLNESS & MENTAL ── --}}
+{{-- ── WELLNESS & MENTAL — Psychologist ── --}}
+@if($canSee('mental'))
 <div class="param-group">
   <div class="pg-head"><div class="pg-ico">🧠</div><div class="pg-title">Wellness & Mental Health</div><div class="pg-count">3 parameters</div></div>
   @php $msVal = $v('mental_score') ?? 7; $msC = $msVal>=7?'#1D9E75':($msVal>=5?'#F59E0B':'#EF4444'); @endphp
@@ -255,8 +285,10 @@
   </div>
   @endforeach
 </div>
+@endif
 
-{{-- ── SKIN & HAIR ── --}}
+{{-- ── SKIN & HAIR — General Physician ── --}}
+@if($canSee('skin'))
 <div class="param-group">
   <div class="pg-head"><div class="pg-ico">💇</div><div class="pg-title">Skin & Hair</div><div class="pg-count">2 parameters</div></div>
   @foreach([
@@ -269,18 +301,22 @@
   </div>
   @endforeach
 </div>
+@endif
 
-{{-- ── NOTES ── --}}
+{{-- ── NOTES — Common for ALL doctors ── --}}
 <div class="card">
   <div class="card-title" style="margin-bottom:14px;">📝 Doctor's Notes & Recommendations</div>
+  <div style="font-size:11px;color:var(--gr);margin-bottom:12px;background:var(--lgr);padding:8px 12px;border-radius:8px;">
+    These fields are shared — previous entries from other specialists are preserved. Add your own observations below.
+  </div>
   <div class="form-grid">
     <div class="form-group">
       <label class="form-label">Doctor's Observations</label>
-      <textarea name="doctor_notes" class="form-input" placeholder="Overall observations, specific findings, anything notable during examination…">{{ $v('doctor_notes') }}</textarea>
+      <textarea name="doctor_notes" class="form-input" rows="4" placeholder="Your observations, specific findings, anything notable during examination…">{{ $v('doctor_notes') }}</textarea>
     </div>
     <div class="form-group">
       <label class="form-label">Recommendations for Parent/School</label>
-      <textarea name="recommendations" class="form-input" placeholder="Dietary recommendations, follow-up tests, specialist referrals, lifestyle changes…">{{ $v('recommendations') }}</textarea>
+      <textarea name="recommendations" class="form-input" rows="4" placeholder="Dietary recommendations, follow-up tests, specialist referrals, lifestyle changes…">{{ $v('recommendations') }}</textarea>
     </div>
   </div>
 </div>
@@ -313,6 +349,7 @@ function syncBack(field, val){
   updateColor(field, val);
   if(field==='height_cm'||field==='weight_kg') calcBmi();
 }
+function syncBmi(field, val){ sync(field, val); calcBmi(); }
 function updateColor(field, val){
   const nv = document.getElementById('nv-'+field);
   const sl = document.getElementById('sl-'+field);

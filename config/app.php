@@ -85,6 +85,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Default Parent Password
+    |--------------------------------------------------------------------------
+    |
+    | Password assigned to all new parent accounts created via bulk import.
+    | Admins should share this with parents and ask them to change it after
+    | first login. Change PARENT_DEFAULT_PASSWORD in your .env file.
+    |
+    */
+
+    'parent_default_password' => env('PARENT_DEFAULT_PASSWORD', 'CMF@Parent123'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |

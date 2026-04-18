@@ -55,10 +55,12 @@ class CheckupController extends Controller
                           ->where('doctor_session_id', $doctorSession->id)
                           ->first();
 
+        $doctorType = auth()->user()->doctor_type ?? 'general_physician';
+
         $this->sessionService->log(auth()->user(), $doctorSession, 'view_student',
             "Opened checkup form for {$student->name}", ['student_id' => $student->id]);
 
-        return view('doctor.checkup-form', compact('student', 'checkup', 'doctorSession'));
+        return view('doctor.checkup-form', compact('student', 'checkup', 'doctorSession', 'doctorType'));
     }
 
     /**

@@ -12,7 +12,9 @@ class DashboardController extends Controller
     public function index()
     {
         $parent   = auth()->user();
-        $students = $parent->students()->with('checkups')->get();
+        $students = $parent->students()->with([
+            'checkups' => fn($q) => $q->with('doctor')->latest('checkup_date'),
+        ])->get();
 
         // Default to first student if only one
         $student = $students->first();
@@ -24,10 +26,13 @@ class DashboardController extends Controller
     {
         $this->authorizeStudent($student);
 
-        $latestCheckup = $student->checkups()->completed()->latest('checkup_date')->first();
-        $allCheckups   = $student->checkups()->completed()->latest('checkup_date')->get();
+        $allCheckups = $student->checkups()
+            ->with('doctor')
+            ->completed()
+            ->latest('checkup_date')
+            ->get();
 
-        return view('parent.report', compact('student', 'latestCheckup', 'allCheckups'));
+        return view('parent.report', compact('student', 'allCheckups'));
     }
 
     public function timeline(Student $student)

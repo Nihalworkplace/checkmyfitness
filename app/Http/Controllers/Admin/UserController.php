@@ -36,19 +36,23 @@ class UserController extends Controller
 
     public function storeDoctor(Request $request)
     {
+        $validTypes = implode(',', array_keys(User::DOCTOR_TYPES));
+
         $data = $request->validate([
-            'name'        => 'required|string|max:255',
-            'staff_code'  => 'required|string|unique:users,staff_code|max:50',
-            'phone'       => 'nullable|string|max:20',
-            'school_name' => 'nullable|string|max:255',
+            'name'           => 'required|string|max:255',
+            'staff_code'     => 'required|string|unique:users,staff_code|max:50',
+            'license_number' => 'required|string|unique:users,license_number|max:100',
+            'doctor_type'    => "required|in:{$validTypes}",
+            'phone'          => 'nullable|string|max:20',
         ]);
 
         $doctor = User::create([
-            'name'        => $data['name'],
-            'staff_code'  => strtoupper($data['staff_code']),
-            'phone'       => $data['phone'] ?? null,
-            'school_name' => $data['school_name'] ?? null,
-            'is_active'   => true,
+            'name'           => $data['name'],
+            'staff_code'     => strtoupper($data['staff_code']),
+            'license_number' => strtoupper($data['license_number']),
+            'doctor_type'    => $data['doctor_type'],
+            'phone'          => $data['phone'] ?? null,
+            'is_active'      => true,
         ]);
 
         $doctor->assignRole('doctor');
@@ -157,5 +161,17 @@ class UserController extends Controller
 
         return redirect()->route('admin.students')
                          ->with('success', "Student {$student->name} created. Reference Code: {$student->reference_code}");
+    }
+
+    public function showStudent(Student $student)
+    {
+        $student->load(['parent', 'checkups' => fn($q) => $q->latest('checkup_date')]);
+        return view('admin.users.show-student', compact('student'));
+    }
+
+    public function showParent(User $parent)
+    {
+        $parent->load(['students.checkups' => fn($q) => $q->latest('checkup_date')->limit(1)]);
+        return view('admin.users.show-parent', compact('parent'));
     }
 }

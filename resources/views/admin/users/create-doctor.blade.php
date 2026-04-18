@@ -18,12 +18,65 @@
           <div class="form-hint">Must be unique. Format: CMF-DOC-XXXX</div>
         </div>
       </div>
-      <div class="form-grid">
-        <div class="form-group"><label class="form-label">Phone</label><input type="tel" name="phone" class="form-input" placeholder="+91 98765 43210" value="{{ old('phone') }}"/></div>
-        <div class="form-group"><label class="form-label">Primary School (optional)</label><input type="text" name="school_name" class="form-input" placeholder="DPS Vadodara" value="{{ old('school_name') }}"/></div>
+      <div class="form-group">
+        <label class="form-label">Medical License Number <span class="req">*</span></label>
+        <input type="text" name="license_number" class="form-input" placeholder="MCI-GUJ-2019-12345" value="{{ old('license_number') }}" required style="text-transform:uppercase;"/>
+        <div class="form-hint">State Medical Council registration number — must be unique across all doctors.</div>
       </div>
+      <div class="form-group">
+        <label class="form-label">Doctor Type / Specialisation <span class="req">*</span></label>
+        <select name="doctor_type" class="form-input" required>
+          <option value="">Select specialisation…</option>
+          @foreach(\App\Models\User::DOCTOR_TYPES as $value => $label)
+            <option value="{{ $value }}" {{ old('doctor_type') === $value ? 'selected' : '' }}>{{ $label }}</option>
+          @endforeach
+        </select>
+        <div class="form-hint">Determines which health parameters this doctor can fill during a checkup session.</div>
+      </div>
+      <div class="form-group"><label class="form-label">Phone</label><input type="tel" name="phone" class="form-input" placeholder="+91 98765 43210" value="{{ old('phone') }}"/></div>
+
+      {{-- Type info card --}}
+      <div style="background:var(--lgr);border-radius:12px;padding:14px 16px;margin-bottom:20px;" id="type-info-box" class="{{ old('doctor_type') ? '' : 'hidden' }}">
+        <div style="font-size:11px;font-weight:700;color:var(--gr);margin-bottom:8px;text-transform:uppercase;">Access Preview</div>
+        <div id="type-info-text" style="font-size:13px;color:var(--dk);"></div>
+      </div>
+
       <button type="submit" class="btn btn-b btn-lg btn-full">Create Doctor Account →</button>
     </form>
   </div>
 </div>
+
+@push('scripts')
+<script>
+const typeInfo = {
+  general_physician: '📏 Physical & Vitals (Height, Weight, BMI, Heart Rate, Blood Pressure, Temperature, SpO₂) + Skin & Hair + 📝 Notes',
+  dentist:           '🦷 Dental Health score + 📝 Notes',
+  eye_specialist:    '👁️ Vision (Left & Right Eye), Eye Strain + 📝 Notes',
+  audiologist_ent:   '👂 Hearing assessment + 📝 Notes',
+  physiotherapist:   '🦴 Musculoskeletal (Posture, Flexibility, Flat Feet, Grip Strength) + 📝 Notes',
+  psychologist:      '🧠 Wellness & Mental Health (Mental Well-being, Stress Level, Sleep Quality) + 📝 Notes',
+  lab_technician:    '🧪 Lab Tests (Haemoglobin, Vitamin D, Iron Level, Blood Sugar) + 📝 Notes',
+};
+document.querySelector('[name="doctor_type"]').addEventListener('change', function(){
+  const box  = document.getElementById('type-info-box');
+  const text = document.getElementById('type-info-text');
+  if(this.value && typeInfo[this.value]){
+    text.textContent = typeInfo[this.value];
+    box.classList.remove('hidden');
+  } else {
+    box.classList.add('hidden');
+  }
+});
+// Show on load if old value
+(function(){
+  const sel = document.querySelector('[name="doctor_type"]');
+  const box = document.getElementById('type-info-box');
+  const text = document.getElementById('type-info-text');
+  if(sel.value && typeInfo[sel.value]){
+    text.textContent = typeInfo[sel.value];
+    box.classList.remove('hidden');
+  }
+})();
+</script>
+@endpush
 @endsection

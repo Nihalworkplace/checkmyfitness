@@ -15,25 +15,48 @@
     </select>
     <button type="submit" class="btn btn-dk">Search</button>
   </form>
-  <a href="{{ route('admin.doctors.create') }}" class="btn btn-b">+ Add Doctor</a>
+  <div style="display:flex;gap:8px;">
+    <a href="{{ route('admin.import.doctors.form') }}" class="btn btn-out">⬆ Import CSV</a>
+    <a href="{{ route('admin.doctors.create') }}" class="btn btn-b">+ Add Doctor</a>
+  </div>
 </div>
 
 <div class="card">
   <div class="tw">
     <table>
-      <thead><tr><th>Doctor</th><th>Staff Code</th><th>Phone</th><th>School</th><th>Sessions</th><th>Status</th><th>Actions</th></tr></thead>
+      <thead><tr><th>Doctor</th><th>Staff Code</th><th>Specialisation</th><th>License No.</th><th>Phone</th><th>Sessions</th><th>Status</th><th>Actions</th></tr></thead>
       <tbody>
         @forelse($doctors as $d)
+          @php
+            $typeColors = [
+              'general_physician' => '#3B82F6',
+              'dentist'           => '#8B5CF6',
+              'eye_specialist'    => '#06B6D4',
+              'audiologist_ent'   => '#F59E0B',
+              'physiotherapist'   => '#10B981',
+              'psychologist'      => '#EC4899',
+              'lab_technician'    => '#EF4444',
+            ];
+            $typeColor = $typeColors[$d->doctor_type] ?? '#6B7280';
+            $typeLabel = \App\Models\User::DOCTOR_TYPES[$d->doctor_type] ?? '—';
+          @endphp
           <tr>
             <td>
               <div style="display:flex;align-items:center;gap:8px;">
-                <div style="width:32px;height:32px;background:#3B82F6;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;">{{ strtoupper(substr($d->name,0,1)) }}</div>
+                <div style="width:32px;height:32px;background:{{ $typeColor }};border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;">{{ strtoupper(substr($d->name,0,1)) }}</div>
                 <strong>Dr. {{ $d->name }}</strong>
               </div>
             </td>
             <td><code style="font-size:11px;background:var(--lgr);padding:2px 7px;border-radius:5px;">{{ $d->staff_code }}</code></td>
+            <td>
+              @if($d->doctor_type)
+                <span style="display:inline-block;font-size:10px;font-weight:700;background:{{ $typeColor }}18;color:{{ $typeColor }};padding:3px 8px;border-radius:20px;border:1px solid {{ $typeColor }}44;">{{ $typeLabel }}</span>
+              @else
+                <span class="text-muted" style="font-size:12px;">—</span>
+              @endif
+            </td>
+            <td style="font-size:12px;">{{ $d->license_number ?? '—' }}</td>
             <td>{{ $d->phone ?? '—' }}</td>
-            <td>{{ $d->school_name ?? '—' }}</td>
             <td>{{ $d->doctor_sessions_count }}</td>
             <td><span class="badge {{ $d->is_active?'bg':'br' }}">{{ $d->is_active?'Active':'Inactive' }}</span></td>
             <td>

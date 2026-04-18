@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Student;
 use App\Models\User;
 use App\Services\DoctorSessionService;
 use Illuminate\Http\Request;
@@ -115,34 +116,41 @@ class LoginController extends Controller
     private function parentCodeLogin(Request $request)
     {
         $request->validate([
-            'reference_code' => 'required|string',
+            'reference_code'  => 'required|string',
+            'date_of_birth'   => 'required|date',
         ]);
 
         $code = strtoupper(trim($request->reference_code));
+        $dob  = date('Y-m-d', strtotime($request->date_of_birth));
 
-        // Find user who has a student with this reference code
-        $user = User::whereHas('students', fn($q) => $q->where('reference_code', $code))
+        // Find student matching reference code + date of birth
+        $student = Student::where('reference_code', $code)
+                          ->whereDate('date_of_birth', $dob)
+                          ->first();
+
+        if (! $student) {
+            throw ValidationException::withMessages([
+                'reference_code' => 'Reference code or date of birth is incorrect.',
+            ]);
+        }
+
+        $user = User::where('id', $student->parent_id)
                     ->role('parent')
                     ->where('is_active', true)
                     ->first();
 
         if (! $user) {
-            // Also try direct reference_code on user
-            $user = User::where('reference_code', $code)->role('parent')->where('is_active', true)->first();
-        }
-
-        if (! $user) {
             throw ValidationException::withMessages([
-                'reference_code' => 'No account found for this reference code: ' . $code,
+                'reference_code' => 'No active parent account linked to this student.',
             ]);
         }
 
         Auth::login($user);
-        $this->sessionService->log($user, null, 'login', 'Parent logged in via reference code');
+        $this->sessionService->log($user, null, 'login', 'Parent logged in via reference code + DOB');
         $request->session()->regenerate();
 
         return redirect()->intended(route('parent.dashboard'))
-                         ->with('success', 'Welcome! Showing health records for ' . $code);
+                         ->with('success', 'Welcome! Showing health records for ' . $student->name);
     }
 
     // ── Doctor Login ─────────────────────────────────────────

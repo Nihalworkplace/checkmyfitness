@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('title', 'Admin Dashboard')
 @section('page-title', 'Admin Dashboard')
 
@@ -8,18 +7,23 @@
 @endsection
 
 @section('content')
+
 {{-- Stat cards --}}
-<div class="stat-grid" style="grid-template-columns:repeat(4,1fr);">
+<div class="stat-grid">
   <div class="scard"><div class="sc-l">Partner Schools</div><div class="sc-v">{{ $stats['total_schools'] }}</div></div>
-  <div class="scard"><div class="sc-l">Active Doctors</div><div class="sc-v" style="color:#3B82F6;">{{ $stats['total_doctors'] }}</div></div>
-  <div class="scard"><div class="sc-l">Registered Parents</div><div class="sc-v" style="color:var(--g);">{{ $stats['total_parents'] }}</div></div>
+  <div class="scard"><div class="sc-l">Active Doctors</div><div class="sc-v sc-v--blue">{{ $stats['total_doctors'] }}</div></div>
+  <div class="scard"><div class="sc-l">Registered Parents</div><div class="sc-v sc-v--green">{{ $stats['total_parents'] }}</div></div>
   <div class="scard"><div class="sc-l">Total Students</div><div class="sc-v">{{ $stats['total_students'] }}</div></div>
-  <div class="scard"><div class="sc-l">Active Sessions</div><div class="sc-v" style="color:#3B82F6;">{{ $stats['active_sessions'] }}</div><div class="sc-s" style="color:var(--or);">{{ $stats['pending_sessions'] }} pending</div></div>
-  <div class="scard"><div class="sc-l">Total Checkups</div><div class="sc-v" style="color:var(--g);">{{ $stats['total_checkups'] }}</div></div>
-  <div class="scard"><div class="sc-l">Health Alerts</div><div class="sc-v" style="color:var(--r);">{{ $stats['total_alerts'] }}</div></div>
+  <div class="scard">
+    <div class="sc-l">Active Sessions</div>
+    <div class="sc-v sc-v--blue">{{ $stats['active_sessions'] }}</div>
+    <div class="sc-s sc-s--orange">{{ $stats['pending_sessions'] }} pending</div>
+  </div>
+  <div class="scard"><div class="sc-l">Total Checkups</div><div class="sc-v sc-v--green">{{ $stats['total_checkups'] }}</div></div>
+  <div class="scard"><div class="sc-l">Health Alerts</div><div class="sc-v sc-v--red">{{ $stats['total_alerts'] }}</div></div>
   <div class="scard">
     <div class="sc-l">Quick Actions</div>
-    <a href="{{ route('admin.sessions.create') }}" class="btn btn-b btn-sm" style="margin-top:8px;width:100%;">+ New Session</a>
+    <a href="{{ route('admin.sessions.create') }}" class="btn btn-b btn-sm btn-full mt-8">+ New Session</a>
   </div>
 </div>
 
@@ -31,17 +35,17 @@
       <a href="{{ route('admin.sessions.index', ['status'=>'active']) }}" class="btn btn-sm btn-out">View All</a>
     </div>
     @forelse($activeSessions as $sess)
-      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--lgr);">
-        <div style="width:36px;height:36px;background:#3B82F6;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:700;flex-shrink:0;">
-          {{ strtoupper(substr($sess->doctor->name,0,1)) }}
+      <div class="list-row">
+        <div class="avatar avatar--md avatar--blue">
+          {{ strtoupper(substr($sess->doctor->name, 0, 1)) }}
         </div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:13px;font-weight:600;">Dr. {{ $sess->doctor->name }}</div>
-          <div style="font-size:11px;color:var(--gr);">{{ $sess->school_name }} · Exp: {{ $sess->expires_at->inDisplayTz()->format('H:i') }}</div>
+        <div class="flex-auto">
+          <div class="list-row__title">Dr. {{ $sess->doctor->name }}</div>
+          <div class="list-row__sub">{{ $sess->school_name }} · Exp: {{ $sess->expires_at->inDisplayTz()->format('H:i') }}</div>
         </div>
-        <div style="text-align:right;">
-          <span class="badge bb">Active</span><br/>
-          <span style="font-size:10px;color:var(--gr);">{{ $sess->checkups->count() }} checkups</span>
+        <div class="list-row__right">
+          <span class="badge bb">Active</span><br />
+          <span class="meta">{{ $sess->checkups->count() }} checkups</span>
         </div>
         <form method="POST" action="{{ route('admin.sessions.revoke', $sess) }}" onsubmit="return confirm('Revoke this session? Doctor will be logged out immediately.')">
           @csrf
@@ -49,7 +53,7 @@
         </form>
       </div>
     @empty
-      <div style="text-align:center;padding:24px;color:var(--gr);font-size:14px;">No active sessions right now.</div>
+      <div class="empty-state">No active sessions right now.</div>
     @endforelse
   </div>
 
@@ -60,15 +64,15 @@
       <a href="{{ route('admin.logs') }}" class="btn btn-sm btn-out">View All</a>
     </div>
     @foreach($recentLogs->take(12) as $log)
-      <div style="display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--lgr);font-size:12px;">
-        <div style="flex:1;min-width:0;">
-          <span style="font-weight:600;color:var(--dk);">{{ $log->user->name }}</span>
-          <span style="color:var(--gr);"> — {{ $log->action_label }}</span>
+      <div class="list-row fs-12">
+        <div class="flex-auto">
+          <span class="fw-600">{{ $log->user->name }}</span>
+          <span class="text-muted"> — {{ $log->action_label }}</span>
           @if($log->doctorSession)
             <span class="badge bb" style="font-size:9px;margin-left:4px;">{{ $log->doctorSession->session_code }}</span>
           @endif
         </div>
-        <div style="color:var(--gr);flex-shrink:0;">{{ $log->created_at->diffForHumans() }}</div>
+        <div class="meta" style="flex-shrink:0;">{{ $log->created_at->diffForHumans() }}</div>
       </div>
     @endforeach
   </div>
@@ -76,7 +80,7 @@
 
 {{-- School performance overview --}}
 @if($schoolPerformance->count())
-<div class="card" style="margin-bottom:18px;">
+<div class="card mb-18">
   <div class="card-header">
     <div class="card-title">🏫 School Performance Overview</div>
     <a href="{{ route('admin.schools.index') }}" class="btn btn-out btn-sm">View All Schools →</a>
@@ -90,27 +94,23 @@
       </thead>
       <tbody>
         @foreach($schoolPerformance as $school)
-          @php
-            $score   = $school->avg_score;
-            $alerts  = $school->alert_count;
-          @endphp
+          @php $score = $school->avg_score; @endphp
           <tr>
             <td><strong>{{ $school->name }}</strong></td>
             <td>{{ $school->city }}</td>
             <td>{{ $school->student_count }}</td>
             <td>
               @if($score)
-                <span style="font-weight:700;color:{{ $score>=72?'var(--g)':($score>=50?'var(--or)':'var(--r)') }};">{{ $score }}</span>
+                <span class="fw-700" style="color:{{ $score>=72?'var(--g)':($score>=50?'var(--or)':'var(--r)') }};">{{ $score }}</span>
               @else —
               @endif
             </td>
             <td>{{ $school->last_session_date ?? '—' }}</td>
             <td>
-              @if($alerts > 0)
-                <span class="badge {{ $alerts>30?'br':'by' }}">{{ $alerts }}</span>
-              @else
-                <span class="badge bg">Clear</span>
-              @endif
+              @php $alertCount = $school->alert_count; @endphp
+              <span class="badge {{ $alertCount > 0 ? ($alertCount > 30 ? 'br' : 'by') : 'bg' }}">
+                {{ $alertCount > 0 ? $alertCount : 'Clear' }}
+              </span>
             </td>
             <td><a href="{{ route('admin.schools.show', $school) }}" class="btn btn-out btn-sm">View</a></td>
           </tr>
@@ -121,7 +121,7 @@
 </div>
 @endif
 
-{{-- Recent sessions table --}}
+{{-- Recent sessions --}}
 <div class="card">
   <div class="card-header">
     <div class="card-title">Recent Sessions</div>
@@ -137,9 +137,13 @@
       <tbody>
         @forelse($recentSessions as $sess)
           <tr>
-            <td><strong>Dr. {{ $sess->doctor->name }}</strong><br/><span style="font-size:11px;color:var(--gr);">{{ $sess->doctor->staff_code }}</span></td>
+            <td>
+              <strong>Dr. {{ $sess->doctor->name }}</strong><br />
+              <span class="meta">{{ $sess->doctor->staff_code }}</span>
+            </td>
             <td>{{ $sess->school_name }}</td>
-            <td><code style="font-size:11px;background:var(--lgr);padding:2px 7px;border-radius:5px;">{{ $sess->session_code }}</code>
+            <td>
+              <code class="code-pill">{{ $sess->session_code }}</code>
               @if($sess->is_reopened)<span class="badge by" style="margin-left:4px;">Reopened</span>@endif
             </td>
             <td>{{ $sess->visit_date->format('d M Y') }}</td>
@@ -154,27 +158,41 @@
               @if(in_array($sess->status, ['expired','revoked','completed']))
                 <button onclick="document.getElementById('reopen-{{ $sess->id }}').style.display='block'" class="btn btn-or btn-sm">Reopen</button>
               @elseif(in_array($sess->status, ['active','pending']))
-                <form method="POST" action="{{ route('admin.sessions.revoke', $sess) }}" style="display:inline" onsubmit="return confirm('Revoke session?')">@csrf<button type="submit" class="btn btn-r btn-sm">Revoke</button></form>
+                <form class="d-inline" method="POST" action="{{ route('admin.sessions.revoke', $sess) }}" onsubmit="return confirm('Revoke session?')">
+                  @csrf
+                  <button type="submit" class="btn btn-r btn-sm">Revoke</button>
+                </form>
               @endif
             </td>
           </tr>
           {{-- Inline reopen form --}}
-          <tr id="reopen-{{ $sess->id }}" style="display:none;background:#FFFBEB;">
+          <tr id="reopen-{{ $sess->id }}" class="hidden" style="background:#FFFBEB;">
             <td colspan="8">
-              <form method="POST" action="{{ route('admin.sessions.reopen', $sess) }}" style="display:flex;gap:12px;align-items:flex-end;padding:8px 0;flex-wrap:wrap;">
+              <form method="POST" action="{{ route('admin.sessions.reopen', $sess) }}" class="filter-bar" style="padding:8px 0;">
                 @csrf
-                <div><label class="form-label">New Visit Date <span class="req">*</span></label><input type="date" name="visit_date" class="form-input" style="width:160px;" value="{{ date('Y-m-d') }}" required/></div>
-                <div style="flex:1;min-width:200px;"><label class="form-label">Admin Notes</label><input type="text" name="admin_notes" class="form-input" placeholder="Reason for reopening…"/></div>
+                <div>
+                  <label class="form-label">New Visit Date <span class="req">*</span></label>
+                  <input type="date" name="visit_date" class="form-input" style="width:160px;" value="{{ date('Y-m-d') }}" required />
+                </div>
+                <div class="flex-auto" style="min-width:200px;">
+                  <label class="form-label">Admin Notes</label>
+                  <input type="text" name="admin_notes" class="form-input" placeholder="Reason for reopening…" />
+                </div>
                 <button type="submit" class="btn btn-or">Generate New Session Code</button>
                 <button type="button" onclick="document.getElementById('reopen-{{ $sess->id }}').style.display='none'" class="btn btn-out">Cancel</button>
               </form>
             </td>
           </tr>
         @empty
-          <tr><td colspan="8" style="text-align:center;color:var(--gr);padding:24px;">No sessions yet. <a href="{{ route('admin.sessions.create') }}" style="color:var(--g);">Create one →</a></td></tr>
+          <tr>
+            <td colspan="8" class="empty-state">
+              No sessions yet. <a href="{{ route('admin.sessions.create') }}" class="text-green">Create one →</a>
+            </td>
+          </tr>
         @endforelse
       </tbody>
     </table>
   </div>
 </div>
+
 @endsection

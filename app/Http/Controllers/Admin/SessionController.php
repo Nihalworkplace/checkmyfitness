@@ -37,13 +37,20 @@ class SessionController extends Controller
     {
         $doctors = User::role('doctor')->where('is_active', true)->orderBy('name')->get();
         $schools = School::where('is_active', true)->orderBy('name')->get();
-        return view('admin.sessions.create', compact('doctors', 'schools'));
+
+        $defaults = ['1A','1B','2A','2B','3A','3B','4A','4B','5A','5B','6A','6B',
+                     '7A','7B','8A','8B','9A','9B','10A','10B','11A','11B','12A','12B'];
+        $dbClasses = \App\Models\Student::distinct()->orderBy('class_section')->pluck('class_section')->toArray();
+        $classes   = collect(array_unique(array_merge($defaults, $dbClasses)))->sort()->values();
+
+        return view('admin.sessions.create', compact('doctors', 'schools', 'classes'));
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'doctor_id'        => 'required|exists:users,id',
+            'doctor_ids'       => 'required|array|min:1',
+            'doctor_ids.*'     => 'exists:users,id',
             'school_id'        => 'required|exists:schools,id',
             'school_name'      => 'required|string|max:255',
             'school_city'      => 'nullable|string|max:100',
@@ -52,22 +59,44 @@ class SessionController extends Controller
             'admin_notes'      => 'nullable|string|max:1000',
         ]);
 
-        // Warn if this doctor already has a pending/active session for the SAME school
-        $doctor = User::findOrFail($data['doctor_id']);
-        $conflict = $doctor->doctorSessions()
-            ->where('school_name', $data['school_name'])
-            ->whereIn('status', ['pending', 'active'])
-            ->where('expires_at', '>', now())
-            ->exists();
+        $created  = [];
+        $skipped  = [];
 
-        if ($conflict) {
-            return back()->withErrors(['school_id' => 'This doctor already has an active/pending session for this school. Revoke it first or wait for it to expire.'])->withInput();
+        foreach ($data['doctor_ids'] as $doctorId) {
+            $doctor = User::findOrFail($doctorId);
+
+            // Skip if this doctor already has a pending/active session for this school
+            $conflict = $doctor->doctorSessions()
+                ->where('school_name', $data['school_name'])
+                ->whereIn('status', ['pending', 'active'])
+                ->where('expires_at', '>', now())
+                ->exists();
+
+            if ($conflict) {
+                $skipped[] = "Dr. {$doctor->name} — already has an active/pending session for this school.";
+                continue;
+            }
+
+            $session = $this->sessionService->createSession(
+                array_merge($data, ['doctor_id' => $doctorId]),
+                auth()->user()
+            );
+
+            $created[] = "Dr. {$doctor->name} ({$session->session_code})";
         }
 
-        $session = $this->sessionService->createSession($data, auth()->user());
+        if (empty($created)) {
+            return back()
+                ->withErrors(['doctor_ids' => 'No sessions created. All selected doctors already have active sessions for this school.'])
+                ->withInput();
+        }
 
-        return redirect()->route('admin.sessions.show', $session)
-                         ->with('success', "Session created! Code: {$session->session_code}");
+        $msg = 'Sessions created: ' . implode(', ', $created);
+        if ($skipped) {
+            $msg .= ' | Skipped: ' . implode('; ', $skipped);
+        }
+
+        return redirect()->route('admin.sessions.index')->with('success', $msg);
     }
 
     public function show(DoctorSession $session)
