@@ -61,13 +61,18 @@ class StudentsImport implements ToCollection, WithHeadingRow
             $guardian     = Guardian::where('email', $parentEmail)->first();
 
             if (!$guardian) {
+                $parentPhone = preg_replace('/\D/', '', trim($row['parent_phone'] ?? ''));
+                if ($parentPhone !== '' && strlen($parentPhone) !== 10) {
+                    $this->results['errors'][] = "Row {$row_num}: parent_phone must be exactly 10 digits if provided.";
+                    continue;
+                }
                 $tempPassword = config('app.parent_default_password');
                 $guardian = Guardian::create([
                     'admin_id'  => $adminId,
                     'name'      => trim($row['parent_name'] ?? '') ?: $parentEmail,
                     'email'     => $parentEmail,
                     'password'  => Hash::make($tempPassword),
-                    'phone'     => trim($row['parent_phone'] ?? '') ?: null,
+                    'phone'     => $parentPhone ?: null,
                     'is_active' => true,
                 ]);
             }

@@ -44,7 +44,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Contact Phone</label>
-          <input type="text" name="contact_phone" class="form-input" value="{{ old('contact_phone', $school->contact_phone) }}"/>
+          <input type="tel" name="contact_phone" class="form-input phone-input" placeholder="10-digit mobile number" value="{{ old('contact_phone', $school->contact_phone) }}" maxlength="10"/>
         </div>
       </div>
 

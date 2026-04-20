@@ -58,7 +58,7 @@
             ['known_conditions','No',  'Asthma',                'Leave blank if none'],
             ['parent_name',     'Yes', 'Rajesh Sharma',         ''],
             ['parent_email',    'Yes', 'rajesh@gmail.com',      'Unique — used to find or create parent account'],
-            ['parent_phone',    'No',  '9876543210',            ''],
+            ['parent_phone',    'No',  '9876543210',            '10 digits only'],
           ] as [$col, $req, $ex, $note])
             <tr>
               <td><code style="font-size:11px;background:var(--lgr);padding:2px 6px;border-radius:4px;">{{ $col }}</code></td>

@@ -40,7 +40,7 @@ class DatabaseSeeder extends Seeder
                 'city'           => 'Vadodara',
                 'board'          => 'CBSE',
                 'contact_person' => 'Principal Mrs. Sharma',
-                'contact_phone'  => '+91 265 123 4567',
+                'contact_phone'  => '2651234567',
                 'is_active'      => true,
             ]
         );
@@ -62,7 +62,7 @@ class DatabaseSeeder extends Seeder
                 'admin_id'       => $admin->id,
                 'name'           => 'Dr. Priya Kapoor',
                 'doctor_type'    => 'general_physician',
-                'phone'          => '+91 98765 43210',
+                'phone'          => '9876543210',
                 'is_active'      => true,
             ]
         );
@@ -74,7 +74,7 @@ class DatabaseSeeder extends Seeder
                 'admin_id'    => $admin->id,
                 'name'        => 'Dr. Raj Mehta',
                 'doctor_type' => 'general_physician',
-                'phone'       => '+91 87654 32109',
+                'phone'       => '8765432109',
                 'is_active'   => true,
             ]
         );
@@ -87,7 +87,7 @@ class DatabaseSeeder extends Seeder
                 'admin_id'  => $admin->id,
                 'name'      => 'Rajesh Shah',
                 'password'  => Hash::make('Parent@2026'),
-                'phone'     => '+91 99887 76655',
+                'phone'     => '9988776655',
                 'is_active' => true,
             ]
         );
@@ -99,7 +99,7 @@ class DatabaseSeeder extends Seeder
                 'admin_id'  => $admin->id,
                 'name'      => 'Meena Patel',
                 'password'  => Hash::make('Parent@2026'),
-                'phone'     => '+91 88776 65544',
+                'phone'     => '8877665544',
                 'is_active' => true,
             ]
         );

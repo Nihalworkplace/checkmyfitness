@@ -34,7 +34,7 @@
             ['staff_code',     'Yes', 'CMF-DOC-001',         'Must be unique — doctors log in with this code'],
             ['license_number', 'Yes', 'MCI-GUJ-2018-10234', 'State Medical Council registration number — must be unique'],
             ['doctor_type',    'Yes', 'general_physician',   'Required. Valid values: ' . $typeDesc],
-            ['phone',          'No',  '9876543210',          ''],
+            ['phone',          'No',  '9876543210',          '10 digits only'],
           ] as [$col, $req, $ex, $note])
             <tr>
               <td><code style="font-size:11px;background:var(--lgr);padding:2px 6px;border-radius:4px;">{{ $col }}</code></td>

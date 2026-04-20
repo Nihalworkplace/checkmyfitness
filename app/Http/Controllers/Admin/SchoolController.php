@@ -39,7 +39,7 @@ class SchoolController extends Controller
             'city'            => 'required|string|max:100',
             'board'           => 'required|in:CBSE,ICSE,GSEB,IB,IGCSE,State,Other',
             'contact_person'  => 'nullable|string|max:150',
-            'contact_phone'   => 'nullable|string|max:20',
+            'contact_phone'   => 'nullable|digits:10',
             'notes'           => 'nullable|string|max:1000',
         ]);
 
@@ -73,7 +73,7 @@ class SchoolController extends Controller
             'city'            => 'required|string|max:100',
             'board'           => 'required|in:CBSE,ICSE,GSEB,IB,IGCSE,State,Other',
             'contact_person'  => 'nullable|string|max:150',
-            'contact_phone'   => 'nullable|string|max:20',
+            'contact_phone'   => 'nullable|digits:10',
             'notes'           => 'nullable|string|max:1000',
         ]);
 

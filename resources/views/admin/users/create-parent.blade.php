@@ -26,7 +26,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Phone</label>
-          <input type="tel" name="phone" class="form-input" placeholder="+91 98765 43210" value="{{ old('phone') }}"/>
+          <input type="tel" name="phone" class="form-input phone-input" placeholder="10-digit mobile number" value="{{ old('phone') }}" maxlength="10"/>
         </div>
       </div>
 

@@ -56,13 +56,19 @@ class DoctorsImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
+            $phone = preg_replace('/\D/', '', trim($row['phone'] ?? ''));
+            if ($phone !== '' && strlen($phone) !== 10) {
+                $this->results['errors'][] = "Row {$row_num}: phone must be exactly 10 digits if provided.";
+                continue;
+            }
+
             $doctor = Doctor::create([
                 'admin_id'       => $adminId,
                 'name'           => $name,
                 'staff_code'     => $staffCode,
                 'license_number' => $licenseNumber,
                 'doctor_type'    => $doctorType,
-                'phone'          => trim($row['phone'] ?? '') ?: null,
+                'phone'          => $phone ?: null,
                 'is_active'      => true,
             ]);
 

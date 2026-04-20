@@ -33,7 +33,7 @@
         </select>
         <div class="form-hint">Determines which health parameters this doctor can fill during a checkup session.</div>
       </div>
-      <div class="form-group"><label class="form-label">Phone</label><input type="tel" name="phone" class="form-input" placeholder="+91 98765 43210" value="{{ old('phone') }}"/></div>
+      <div class="form-group"><label class="form-label">Phone</label><input type="tel" name="phone" class="form-input phone-input" placeholder="10-digit mobile number" value="{{ old('phone') }}" maxlength="10"/></div>
 
       {{-- Type info card --}}
       <div style="background:var(--lgr);border-radius:12px;padding:14px 16px;margin-bottom:20px;" id="type-info-box" class="{{ old('doctor_type') ? '' : 'hidden' }}">

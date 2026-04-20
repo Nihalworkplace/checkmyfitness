@@ -45,7 +45,7 @@ class UserController extends Controller
             'staff_code'     => 'required|string|unique:doctors,staff_code|max:50',
             'license_number' => 'required|string|unique:doctors,license_number|max:100',
             'doctor_type'    => "required|in:{$validTypes}",
-            'phone'          => 'nullable|string|max:20',
+            'phone'          => 'nullable|digits:10',
         ]);
 
         $doctor = Doctor::create([
@@ -95,7 +95,7 @@ class UserController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:parents,email',
             'password' => ['required', Password::min(8)],
-            'phone'    => 'nullable|string|max:20',
+            'phone'    => 'nullable|digits:10',
         ]);
 
         $guardian = Guardian::create([
