@@ -202,13 +202,6 @@
 
         </div>{{-- /panel-admin --}}
 
-        {{-- Demo credentials --}}
-        <div class="demo-box">
-            <strong>Demo Credentials</strong><br />
-            Admin: admin@checkmy.fitness / Admin@2026<br />
-            Parent: rajesh.shah@example.com / password &nbsp;|&nbsp; OR code: CMF-2024-06B-042 + DOB<br />
-            Doctor: CMF-DOC-0021 + SESS-DPS-DEMO-2026
-        </div>
 
     </div>{{-- /login-card --}}
 
