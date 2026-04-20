@@ -1,4 +1,4 @@
-{{-- resources/views/parent/report.blade.php --}}
+﻿{{-- resources/views/parent/report.blade.php --}}
 @extends('layouts.app')
 @section('title','Health Report — '.$student->name)
 @section('page-title','Health Report')
@@ -74,7 +74,7 @@
         @foreach($allCheckups as $c)
           @php $dt = $c->doctor?->doctor_type; $dc = $typeColors[$dt] ?? '#6B7280'; @endphp
           <span style="font-size:10px;font-weight:700;background:{{ $dc }}22;color:{{ $dc }};border:1px solid {{ $dc }}44;padding:2px 8px;border-radius:20px;">
-            {{ $typeIcons[$dt] ?? '🩺' }} {{ \App\Models\User::DOCTOR_TYPES[$dt] ?? 'Doctor' }}
+            {{ $typeIcons[$dt] ?? '🩺' }} {{ \App\Models\Doctor::DOCTOR_TYPES[$dt] ?? 'Doctor' }}
           </span>
         @endforeach
       </div>
@@ -92,10 +92,10 @@
   @foreach($allCheckups as $c)
     @php
       $drType   = $c->doctor?->doctor_type;
-      $drLabel  = \App\Models\User::DOCTOR_TYPES[$drType] ?? 'Doctor';
+      $drLabel  = \App\Models\Doctor::DOCTOR_TYPES[$drType] ?? 'Doctor';
       $drColor  = $typeColors[$drType] ?? '#6B7280';
       $drIcon   = $typeIcons[$drType] ?? '🩺';
-      $sections = \App\Models\User::DOCTOR_TYPE_SECTIONS[$drType] ?? [];
+      $sections = \App\Models\Doctor::DOCTOR_TYPE_SECTIONS[$drType] ?? [];
     @endphp
 
     <div class="card" style="margin-bottom:14px;border-top:3px solid {{ $drColor }};">
@@ -105,7 +105,7 @@
           <div style="width:38px;height:38px;border-radius:10px;background:{{ $drColor }}18;border:1.5px solid {{ $drColor }}33;display:flex;align-items:center;justify-content:center;font-size:16px;">{{ $drIcon }}</div>
           <div>
             <div class="fw-700" style="font-size:15px;color:var(--dk);">{{ $drLabel }}</div>
-            <div class="meta">Dr. {{ $c->doctor->name ?? '—' }} · {{ $c->checkup_date->format('d M Y') }}</div>
+            <div class="meta">Dr. {{ $c->doctor?->name ?? '—' }} · {{ $c->checkup_date->format('d M Y') }}</div>
           </div>
         </div>
         @if($c->overall_score)

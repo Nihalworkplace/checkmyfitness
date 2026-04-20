@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class School extends Model
 {
     protected $fillable = [
+        'admin_id',
         'name',
         'city',
         'board',
@@ -20,6 +22,11 @@ class School extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    public function admin()
+    {
+        return $this->belongsTo(User::class, 'admin_id');
+    }
 
     /** All doctor sessions linked to this school */
     public function doctorSessions(): HasMany

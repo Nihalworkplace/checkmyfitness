@@ -11,7 +11,7 @@
     <div class="page-header__eyebrow">Doctor Session</div>
     <div class="page-header__title">{{ $session->session_code }}</div>
     <div class="page-header__sub">
-      Dr. {{ $session->doctor->name }} ({{ $session->doctor->staff_code }}) ·
+      Dr. {{ $session->doctor?->name ?? 'Unknown' }} ({{ $session->doctor?->staff_code }}) ·
       {{ $session->school_name }}, {{ $session->school_city }} ·
       {{ $session->visit_date->format('d M Y') }}
     </div>
@@ -346,7 +346,7 @@
           <tr>
             <td class="meta" style="white-space:nowrap;">{{ $log->created_at->inDisplayTz()->format('d M H:i:s') }}</td>
             <td>
-              <strong>{{ $log->user->name }}</strong><br />
+              <strong>{{ $log->actor?->name ?? 'Unknown' }}</strong><br />
               <span class="badge {{ ['admin'=>'bp','doctor'=>'bb','parent'=>'bg'][$log->role] ?? 'bgr' }}">{{ $log->role }}</span>
             </td>
             <td>{{ $log->action_label }}</td>

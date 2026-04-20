@@ -34,7 +34,7 @@
       <select name="session_id" class="form-input" style="width:220px;">
         <option value="">All Sessions</option>
         @foreach($sessions as $s)
-          <option value="{{ $s->id }}" {{ request('session_id') == $s->id ? 'selected' : '' }}>{{ $s->session_code }} – Dr. {{ $s->doctor->name }}</option>
+          <option value="{{ $s->id }}" {{ request('session_id') == $s->id ? 'selected' : '' }}>{{ $s->session_code }} – Dr. {{ $s->doctor?->name ?? 'Unknown' }}</option>
         @endforeach
       </select>
     </div>
@@ -55,8 +55,8 @@
             <td class="meta">{{ $log->id }}</td>
             <td class="meta" style="white-space:nowrap;">{{ $log->created_at->inDisplayTz()->format('d M y H:i:s') }}</td>
             <td>
-              <strong class="fs-13">{{ $log->user->name }}</strong>
-              @if($log->user->staff_code)<br /><span class="meta">{{ $log->user->staff_code }}</span>@endif
+              <strong class="fs-13">{{ $log->actor?->name ?? 'Unknown' }}</strong>
+              @if($log->actor?->staff_code ?? null)<br /><span class="meta">{{ $log->actor->staff_code }}</span>@endif
             </td>
             <td><span class="badge {{ ['admin'=>'bp','doctor'=>'bb','parent'=>'bg'][$log->role] ?? 'bgr' }}">{{ $log->role }}</span></td>
             <td class="fs-12 fw-600">{{ $log->action_label }}</td>

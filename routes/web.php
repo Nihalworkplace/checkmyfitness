@@ -28,8 +28,8 @@ Route::post('/login/admin',  [LoginController::class, 'adminLogin'])->name('logi
 Route::post('/login/parent', [LoginController::class, 'parentLogin'])->name('login.parent');
 Route::post('/login/doctor', [LoginController::class, 'doctorLogin'])->name('login.doctor');
 
-// Logout
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
+// Logout — any authenticated guard can log out
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth:web,doctor,parent');
 
 /*
 |--------------------------------------------------------------------------
@@ -107,7 +107,7 @@ Route::prefix('admin')
 */
 Route::prefix('doctor')
      ->name('doctor.')
-     ->middleware(['auth', 'role:doctor', 'doctor.session', 'activity.log'])
+     ->middleware(['auth:doctor', 'doctor.session', 'activity.log'])
      ->group(function () {
 
     Route::get('/session',          [CheckupController::class, 'activeSession'])->name('session.active');
@@ -124,7 +124,7 @@ Route::prefix('doctor')
 */
 Route::prefix('parent')
      ->name('parent.')
-     ->middleware(['auth', 'role:parent', 'activity.log'])
+     ->middleware(['auth:parent', 'activity.log'])
      ->group(function () {
 
     Route::get('/dashboard',                  [ParentDashboard::class, 'index'])->name('dashboard');

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 @section('title','Create Session')
 @section('page-title','Create Doctor Session')
 
@@ -60,7 +60,7 @@
           <select name="doctor_ids[]" id="doctor_select" multiple placeholder="Select one or more doctors…">
             @foreach($doctors as $d)
               @php
-                $typeLabel = $d->doctor_type ? (\App\Models\User::DOCTOR_TYPES[$d->doctor_type] ?? $d->doctor_type) : 'No type set';
+                $typeLabel = $d->doctor_type ? (\App\Models\Doctor::DOCTOR_TYPES[$d->doctor_type] ?? $d->doctor_type) : 'No type set';
               @endphp
               <option value="{{ $d->id }}"
                 data-type="{{ $d->doctor_type }}"

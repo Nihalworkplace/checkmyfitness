@@ -1,4 +1,4 @@
-{{-- resources/views/admin/users/doctors.blade.php --}}
+﻿{{-- resources/views/admin/users/doctors.blade.php --}}
 @extends('layouts.app')
 @section('title','Doctors')
 @section('page-title','Manage Doctors')
@@ -38,7 +38,7 @@
               'lab_technician'    => '#EF4444',
             ];
             $typeColor = $typeColors[$d->doctor_type] ?? '#6B7280';
-            $typeLabel = \App\Models\User::DOCTOR_TYPES[$d->doctor_type] ?? '—';
+            $typeLabel = \App\Models\Doctor::DOCTOR_TYPES[$d->doctor_type] ?? '—';
           @endphp
           <tr>
             <td>

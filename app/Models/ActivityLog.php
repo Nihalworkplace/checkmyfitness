@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class ActivityLog extends Model
 {
     protected $fillable = [
-        'user_id',
+        'actor_type',
+        'actor_id',
         'doctor_session_id',
         'role',
         'action',
@@ -28,9 +30,9 @@ class ActivityLog extends Model
         'new_values' => 'array',
     ];
 
-    public function user(): BelongsTo
+    public function actor(): MorphTo
     {
-        return $this->belongsTo(User::class);
+        return $this->morphTo('actor');
     }
 
     public function doctorSession(): BelongsTo
@@ -41,16 +43,16 @@ class ActivityLog extends Model
     public function getActionLabelAttribute(): string
     {
         return match ($this->action) {
-            'login'           => '🔐 Logged In',
-            'logout'          => '🚪 Logged Out',
-            'view_student'    => '👁️ Viewed Student',
-            'create_checkup'  => '✅ Created Checkup',
-            'update_checkup'  => '✏️ Updated Checkup',
-            'delete_checkup'  => '🗑️ Deleted Checkup',
-            'complete_checkup'=> '✓ Marked Complete',
-            'session_expired' => '⏰ Session Expired',
-            'view_dashboard'  => '📊 Viewed Dashboard',
-            default           => ucwords(str_replace('_', ' ', $this->action)),
+            'login'            => '🔐 Logged In',
+            'logout'           => '🚪 Logged Out',
+            'view_student'     => '👁️ Viewed Student',
+            'create_checkup'   => '✅ Created Checkup',
+            'update_checkup'   => '✏️ Updated Checkup',
+            'delete_checkup'   => '🗑️ Deleted Checkup',
+            'complete_checkup' => '✓ Marked Complete',
+            'session_expired'  => '⏰ Session Expired',
+            'view_dashboard'   => '📊 Viewed Dashboard',
+            default            => ucwords(str_replace('_', ' ', $this->action)),
         };
     }
 }

@@ -6,17 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Checkup;
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $parent   = auth()->user();
-        $students = $parent->students()->with([
+        $guardian = Auth::guard('parent')->user();
+        $students = $guardian->students()->with([
             'checkups' => fn($q) => $q->with('doctor')->latest('checkup_date'),
         ])->get();
 
-        // Default to first student if only one
         $student = $students->first();
 
         return view('parent.dashboard', compact('students', 'student'));
@@ -53,7 +53,7 @@ class DashboardController extends Controller
 
     private function authorizeStudent(Student $student): void
     {
-        if ($student->parent_id !== auth()->id()) {
+        if ($student->parent_id !== Auth::guard('parent')->id()) {
             abort(403, 'You are not authorised to view this student\'s records.');
         }
     }

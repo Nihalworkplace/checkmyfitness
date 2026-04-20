@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 @section('title','Import Doctors')
 @section('page-title','Import Doctors')
 @section('sidebar-nav')@include('admin.partials.nav')@endsection
@@ -25,7 +25,7 @@
         <thead><tr><th>Column</th><th>Required</th><th>Example</th><th>Notes</th></tr></thead>
         <tbody>
           @php
-            $typeDesc = collect(\App\Models\User::DOCTOR_TYPES)
+            $typeDesc = collect(\App\Models\Doctor::DOCTOR_TYPES)
                           ->map(fn($label, $key) => "{$key} — {$label}")
                           ->implode(', ');
           @endphp

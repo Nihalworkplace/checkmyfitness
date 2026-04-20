@@ -37,7 +37,7 @@
               <code style="font-size:11px;background:var(--lgr);padding:2px 7px;border-radius:5px;">{{ $sess->session_code }}</code>
               @if($sess->is_reopened)<br/><span class="badge by" style="font-size:9px;margin-top:3px;">Reopened</span>@endif
             </td>
-            <td>Dr. {{ $sess->doctor->name }}<br/><span style="font-size:11px;color:var(--gr);">{{ $sess->doctor->staff_code }}</span></td>
+            <td>Dr. {{ $sess->doctor?->name ?? 'Unknown' }}<br/><span style="font-size:11px;color:var(--gr);">{{ $sess->doctor?->staff_code }}</span></td>
             <td>{{ $sess->school_name }}</td>
             <td>{{ $sess->visit_date->format('d M y') }}</td>
             <td style="white-space:nowrap;font-size:12px;">{{ $sess->expires_at->inDisplayTz()->format('d M y H:i') }}</td>

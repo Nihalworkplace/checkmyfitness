@@ -10,11 +10,12 @@ return new class extends Migration
     {
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->string('actor_type')->nullable();           // App\Models\User | Doctor | Guardian
+            $table->unsignedBigInteger('actor_id')->nullable(); // polymorphic actor
             $table->foreignId('doctor_session_id')->nullable()->constrained('doctor_sessions')->onDelete('set null');
             $table->string('role'); // admin | doctor | parent
-            $table->string('action'); // login, logout, create_checkup, update_checkup, view_student, etc.
-            $table->string('model_type')->nullable(); // App\Models\Checkup
+            $table->string('action');
+            $table->string('model_type')->nullable();
             $table->unsignedBigInteger('model_id')->nullable();
             $table->text('description')->nullable();
             $table->json('old_values')->nullable();
@@ -25,7 +26,7 @@ return new class extends Migration
             $table->string('method', 10)->nullable();
             $table->timestamps();
 
-            $table->index(['user_id', 'created_at']);
+            $table->index(['actor_type', 'actor_id']);
             $table->index(['doctor_session_id', 'created_at']);
             $table->index('action');
             $table->index('role');

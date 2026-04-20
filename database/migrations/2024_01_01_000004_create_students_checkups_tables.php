@@ -11,7 +11,8 @@ return new class extends Migration
         // Students
         Schema::create('students', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('parent_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('admin_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('parent_id')->constrained('parents')->onDelete('cascade');
             $table->string('reference_code')->unique(); // CMF-2024-06B-042
             $table->string('name');
             $table->enum('gender', ['M', 'F', 'Other']);
@@ -30,7 +31,7 @@ return new class extends Migration
         Schema::create('checkups', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
-            $table->foreignId('doctor_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('doctor_id')->constrained('doctors')->onDelete('cascade');
             $table->foreignId('doctor_session_id')->constrained('doctor_sessions')->onDelete('cascade');
             $table->date('checkup_date');
             $table->enum('status', ['draft', 'completed'])->default('draft');

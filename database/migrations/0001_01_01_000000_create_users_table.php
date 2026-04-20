@@ -11,13 +11,10 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email')->unique()->nullable(); // nullable for doctor (no email login)
+            $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password')->nullable(); // nullable for doctor
-            $table->string('staff_code')->unique()->nullable(); // Doctor staff code e.g. CMF-DOC-0021
-            $table->string('reference_code')->unique()->nullable(); // Parent ref e.g. CMF-2024-06B-042
+            $table->string('password');
             $table->string('phone')->nullable();
-            $table->string('school_name')->nullable(); // For parents/doctors
             $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('doctor_sessions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('doctor_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('doctor_id')->constrained('doctors')->onDelete('cascade');
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade'); // Admin who created
             $table->foreignId('parent_session_id')->nullable()->constrained('doctor_sessions')->onDelete('set null'); // For reopened sessions
             $table->string('session_code')->unique(); // e.g. SESS-DPS-20260329-A7X2

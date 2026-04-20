@@ -2,14 +2,14 @@
 
 namespace App\Imports;
 
+use App\Models\Guardian;
 use App\Models\School;
 use App\Models\Student;
-use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
 
 class StudentsImport implements ToCollection, WithHeadingRow
 {
@@ -23,7 +23,8 @@ class StudentsImport implements ToCollection, WithHeadingRow
 
     public function collection(Collection $rows)
     {
-        $row_num = 1; // header is row 1, data starts at 2
+        $row_num = 1;
+        $adminId = Auth::id();
 
         foreach ($rows as $row) {
             $row_num++;
@@ -32,7 +33,6 @@ class StudentsImport implements ToCollection, WithHeadingRow
             $parentEmail  = strtolower(trim($row['parent_email'] ?? ''));
             $classSection = strtoupper(str_replace('-', '', trim($row['class_section'] ?? '')));
 
-            // ── Required fields ───────────────────────────────────
             if (!$studentName || !$parentEmail || !$classSection) {
                 $this->results['errors'][] = "Row {$row_num}: student_name, class_section and parent_email are required.";
                 continue;
@@ -43,15 +43,13 @@ class StudentsImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
-            // ── Gender ────────────────────────────────────────────
             $genderRaw = strtoupper(trim($row['gender'] ?? ''));
-            $gender    = match(true) {
+            $gender    = match (true) {
                 in_array($genderRaw, ['M', 'MALE'])   => 'M',
                 in_array($genderRaw, ['F', 'FEMALE']) => 'F',
                 default                               => 'Other',
             };
 
-            // ── Date of birth ─────────────────────────────────────
             $dobRaw = trim($row['date_of_birth'] ?? '');
             $dob    = date_create($dobRaw);
             if (!$dob || $dob >= new \DateTime()) {
@@ -59,23 +57,21 @@ class StudentsImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
-            // ── Find or create parent by email ────────────────────
             $tempPassword = null;
-            $parent       = User::where('email', $parentEmail)->first();
+            $guardian     = Guardian::where('email', $parentEmail)->first();
 
-            if (!$parent) {
+            if (!$guardian) {
                 $tempPassword = config('app.parent_default_password');
-                $parent = User::create([
+                $guardian = Guardian::create([
+                    'admin_id'  => $adminId,
                     'name'      => trim($row['parent_name'] ?? '') ?: $parentEmail,
                     'email'     => $parentEmail,
                     'password'  => Hash::make($tempPassword),
                     'phone'     => trim($row['parent_phone'] ?? '') ?: null,
                     'is_active' => true,
                 ]);
-                $parent->assignRole('parent');
             }
 
-            // ── Skip duplicate student ────────────────────────────
             if (Student::where('name', $studentName)
                 ->where('class_section', $classSection)
                 ->where('school_name', $this->school->name)
@@ -88,9 +84,9 @@ class StudentsImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
-            // ── Create student ────────────────────────────────────
             $student = Student::create([
-                'parent_id'        => $parent->id,
+                'admin_id'         => $adminId,
+                'parent_id'        => $guardian->id,
                 'name'             => $studentName,
                 'gender'           => $gender,
                 'date_of_birth'    => $dob->format('Y-m-d'),
@@ -107,8 +103,8 @@ class StudentsImport implements ToCollection, WithHeadingRow
                 'student'       => $student->name,
                 'class'         => $student->class_section,
                 'ref'           => $student->reference_code,
-                'parent_name'   => $parent->name,
-                'parent_email'  => $parent->email,
+                'parent_name'   => $guardian->name,
+                'parent_email'  => $guardian->email,
                 'temp_password' => $tempPassword,
             ];
         }

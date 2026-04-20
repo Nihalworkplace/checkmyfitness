@@ -9,6 +9,7 @@ use App\Models\DoctorSession;
 use App\Models\Student;
 use App\Services\DoctorSessionService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CheckupController extends Controller
 {
@@ -20,7 +21,7 @@ class CheckupController extends Controller
     public function activeSession()
     {
         $doctorSession = app('doctor_session');
-        $doctor        = auth()->user();
+        $doctor        = Auth::guard('doctor')->user();
 
         $students = Student::where('school_name', $doctorSession->school_name)
             ->when($doctorSession->classes_assigned, fn($q) =>
@@ -55,9 +56,9 @@ class CheckupController extends Controller
                           ->where('doctor_session_id', $doctorSession->id)
                           ->first();
 
-        $doctorType = auth()->user()->doctor_type ?? 'general_physician';
+        $doctorType = Auth::guard('doctor')->user()->doctor_type ?? 'general_physician';
 
-        $this->sessionService->log(auth()->user(), $doctorSession, 'view_student',
+        $this->sessionService->log(Auth::guard('doctor')->user(), $doctorSession, 'view_student',
             "Opened checkup form for {$student->name}", ['student_id' => $student->id]);
 
         return view('doctor.checkup-form', compact('student', 'checkup', 'doctorSession', 'doctorType'));
@@ -69,7 +70,7 @@ class CheckupController extends Controller
     public function saveCheckup(Request $request, Student $student)
     {
         $doctorSession = app('doctor_session');
-        $doctor        = auth()->user();
+        $doctor        = Auth::guard('doctor')->user();
 
         $data = $request->validate([
             'status'             => 'required|in:draft,completed',

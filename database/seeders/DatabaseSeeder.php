@@ -2,24 +2,24 @@
 
 namespace Database\Seeders;
 
+use App\Models\Doctor;
 use App\Models\DoctorSession;
+use App\Models\Guardian;
 use App\Models\School;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // ── Create Roles ───────────────────────────────────────
-        $roles = ['admin', 'doctor', 'parent'];
-        foreach ($roles as $role) {
-            Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
-        }
+        // ── Roles ──────────────────────────────────────────────
+        Role::firstOrCreate(['name' => 'admin',  'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'doctor', 'guard_name' => 'doctor']);
+        Role::firstOrCreate(['name' => 'parent', 'guard_name' => 'parent']);
 
         // ── Admin ──────────────────────────────────────────────
         $admin = User::firstOrCreate(
@@ -36,6 +36,7 @@ class DatabaseSeeder extends Seeder
         $school1 = School::firstOrCreate(
             ['name' => 'DPS Vadodara'],
             [
+                'admin_id'       => $admin->id,
                 'city'           => 'Vadodara',
                 'board'          => 'CBSE',
                 'contact_person' => 'Principal Mrs. Sharma',
@@ -44,51 +45,46 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $school2 = School::firstOrCreate(
+        School::firstOrCreate(
             ['name' => 'Ryan International'],
-            [
-                'city'      => 'Surat',
-                'board'     => 'CBSE',
-                'is_active' => true,
-            ]
+            ['admin_id' => $admin->id, 'city' => 'Surat', 'board' => 'CBSE', 'is_active' => true]
         );
 
-        $school3 = School::firstOrCreate(
+        School::firstOrCreate(
             ['name' => 'Billabong High School'],
-            [
-                'city'      => 'Vadodara',
-                'board'     => 'CBSE',
-                'is_active' => true,
-            ]
+            ['admin_id' => $admin->id, 'city' => 'Vadodara', 'board' => 'CBSE', 'is_active' => true]
         );
 
         // ── Doctors ────────────────────────────────────────────
-        $doctor1 = User::firstOrCreate(
+        $doctor1 = Doctor::firstOrCreate(
             ['staff_code' => 'CMF-DOC-0021'],
             [
-                'name'        => 'Dr. Priya Kapoor',
-                'phone'       => '+91 98765 43210',
-                'school_name' => 'DPS Vadodara',
-                'is_active'   => true,
+                'admin_id'       => $admin->id,
+                'name'           => 'Dr. Priya Kapoor',
+                'doctor_type'    => 'general_physician',
+                'phone'          => '+91 98765 43210',
+                'is_active'      => true,
             ]
         );
         $doctor1->syncRoles(['doctor']);
 
-        $doctor2 = User::firstOrCreate(
+        $doctor2 = Doctor::firstOrCreate(
             ['staff_code' => 'CMF-DOC-0022'],
             [
+                'admin_id'    => $admin->id,
                 'name'        => 'Dr. Raj Mehta',
+                'doctor_type' => 'general_physician',
                 'phone'       => '+91 87654 32109',
-                'school_name' => 'Ryan International',
                 'is_active'   => true,
             ]
         );
         $doctor2->syncRoles(['doctor']);
 
         // ── Parents ────────────────────────────────────────────
-        $parent1 = User::firstOrCreate(
+        $parent1 = Guardian::firstOrCreate(
             ['email' => 'rajesh.shah@example.com'],
             [
+                'admin_id'  => $admin->id,
                 'name'      => 'Rajesh Shah',
                 'password'  => Hash::make('Parent@2026'),
                 'phone'     => '+91 99887 76655',
@@ -97,9 +93,10 @@ class DatabaseSeeder extends Seeder
         );
         $parent1->syncRoles(['parent']);
 
-        $parent2 = User::firstOrCreate(
+        $parent2 = Guardian::firstOrCreate(
             ['email' => 'meena.patel@example.com'],
             [
+                'admin_id'  => $admin->id,
                 'name'      => 'Meena Patel',
                 'password'  => Hash::make('Parent@2026'),
                 'phone'     => '+91 88776 65544',
@@ -112,6 +109,7 @@ class DatabaseSeeder extends Seeder
         $student1 = Student::firstOrCreate(
             ['reference_code' => 'CMF-2024-06B-042'],
             [
+                'admin_id'      => $admin->id,
                 'parent_id'     => $parent1->id,
                 'name'          => 'Aarav Shah',
                 'gender'        => 'M',
@@ -127,6 +125,7 @@ class DatabaseSeeder extends Seeder
         $student2 = Student::firstOrCreate(
             ['reference_code' => 'CMF-2024-06B-019'],
             [
+                'admin_id'      => $admin->id,
                 'parent_id'     => $parent2->id,
                 'name'          => 'Riya Patel',
                 'gender'        => 'F',

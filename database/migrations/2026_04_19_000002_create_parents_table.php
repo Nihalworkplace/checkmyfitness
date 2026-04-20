@@ -8,22 +8,25 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('schools', function (Blueprint $table) {
+        Schema::create('parents', function (Blueprint $table) {
             $table->id();
             $table->foreignId('admin_id')->constrained('users')->onDelete('cascade');
             $table->string('name');
-            $table->string('city');
-            $table->string('board')->default('CBSE'); // CBSE, ICSE, GSEB, etc.
-            $table->string('contact_person')->nullable();
-            $table->string('contact_phone')->nullable();
+            $table->string('email')->unique()->nullable();
+            $table->string('password')->nullable();
+            $table->string('reference_code')->unique()->nullable(); // for code-based login
+            $table->string('phone')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->text('notes')->nullable();
+            $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->index('reference_code');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('schools');
+        Schema::dropIfExists('parents');
     }
 };

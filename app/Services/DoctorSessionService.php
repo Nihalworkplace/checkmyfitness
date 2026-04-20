@@ -3,10 +3,12 @@
 namespace App\Services;
 
 use App\Models\ActivityLog;
+use App\Models\Doctor;
 use App\Models\DoctorSession;
+use App\Models\Guardian;
 use App\Models\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
 
 class DoctorSessionService
 {
@@ -30,7 +32,7 @@ class DoctorSessionService
             'admin_notes'      => $data['admin_notes'] ?? null,
         ]);
 
-        $this->log($admin, null, 'create_session', 'Created doctor session for '.$session->doctor->name, [
+        $this->log($admin, null, 'create_session', 'Created doctor session for ' . $session->doctor->name, [
             'session_id'   => $session->id,
             'session_code' => $session->session_code,
             'school'       => $session->school_name,
@@ -41,25 +43,24 @@ class DoctorSessionService
 
     /**
      * Reopen a previous session by creating a new linked session.
-     * Old session codes are NEVER reused.
      */
     public function reopenSession(DoctorSession $originalSession, array $data, User $admin): DoctorSession
     {
         $expiryHours = (int) config('cmf.doctor_session_expiry_hours', 12);
 
         $newSession = DoctorSession::create([
-            'doctor_id'        => $originalSession->doctor_id,
-            'created_by'       => $admin->id,
-            'parent_session_id'=> $originalSession->id,
-            'session_code'     => $this->generateUniqueCode($originalSession->school_name),
-            'school_name'      => $originalSession->school_name,
-            'school_city'      => $originalSession->school_city,
-            'classes_assigned' => $data['classes_assigned'] ?? $originalSession->classes_assigned,
-            'visit_date'       => $data['visit_date'] ?? now()->toDateString(),
-            'expires_at'       => now()->addHours($expiryHours),
-            'status'           => 'pending',
-            'is_reopened'      => true,
-            'admin_notes'      => $data['admin_notes'] ?? 'Reopened from session #'.$originalSession->id,
+            'doctor_id'         => $originalSession->doctor_id,
+            'created_by'        => $admin->id,
+            'parent_session_id' => $originalSession->id,
+            'session_code'      => $this->generateUniqueCode($originalSession->school_name),
+            'school_name'       => $originalSession->school_name,
+            'school_city'       => $originalSession->school_city,
+            'classes_assigned'  => $data['classes_assigned'] ?? $originalSession->classes_assigned,
+            'visit_date'        => $data['visit_date'] ?? now()->toDateString(),
+            'expires_at'        => now()->addHours($expiryHours),
+            'status'            => 'pending',
+            'is_reopened'       => true,
+            'admin_notes'       => $data['admin_notes'] ?? 'Reopened from session #' . $originalSession->id,
         ]);
 
         $this->log($admin, null, 'reopen_session', 'Reopened session — new code generated', [
@@ -76,10 +77,9 @@ class DoctorSessionService
      */
     public function authenticateDoctor(string $staffCode, string $sessionCode): array
     {
-        $doctor = User::where('staff_code', $staffCode)
-                      ->where('is_active', true)
-                      ->role('doctor')
-                      ->first();
+        $doctor = Doctor::where('staff_code', $staffCode)
+                        ->where('is_active', true)
+                        ->first();
 
         if (! $doctor) {
             return ['success' => false, 'message' => 'Invalid Staff Code. Please check with your administrator.'];
@@ -104,10 +104,6 @@ class DoctorSessionService
             return ['success' => false, 'message' => 'This session has been revoked by admin.'];
         }
 
-        // A doctor can have sessions at multiple schools (one per school visit).
-        // When they log in to a specific session, deactivate any OTHER currently-active
-        // sessions (a doctor can only physically be at one school at a time).
-        // PENDING sessions for other schools are kept intact.
         DoctorSession::where('doctor_id', $doctor->id)
                      ->where('id', '!=', $session->id)
                      ->where('status', 'active')
@@ -131,7 +127,6 @@ class DoctorSessionService
 
     /**
      * Auto-expire sessions that have passed their expiry time.
-     * Run this via scheduled command.
      */
     public function expireOldSessions(): int
     {
@@ -139,11 +134,6 @@ class DoctorSessionService
             ->update(['status' => 'expired']);
     }
 
-    /**
-     * Generate a unique, human-readable session code.
-     * Format: SESS-{SCHOOL}-{DATE}-{RANDOM4}
-     * e.g. SESS-DPS-20260329-A7X2
-     */
     private function generateUniqueCode(string $schoolName): string
     {
         $schoolAbbr = strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $schoolName), 0, 4));
@@ -157,14 +147,21 @@ class DoctorSessionService
     }
 
     /**
-     * Log an activity.
+     * Log an activity. Actor can be User (admin), Doctor, or Guardian.
      */
-    public function log(User $user, ?DoctorSession $session, string $action, string $desc, array $extra = []): void
+    public function log(Authenticatable $actor, ?DoctorSession $session, string $action, string $desc, array $extra = []): void
     {
+        $role = match (true) {
+            $actor instanceof Doctor   => 'doctor',
+            $actor instanceof Guardian => 'parent',
+            default                    => 'admin',
+        };
+
         ActivityLog::create([
-            'user_id'           => $user->id,
+            'actor_type'        => get_class($actor),
+            'actor_id'          => $actor->getAuthIdentifier(),
             'doctor_session_id' => $session?->id,
-            'role'              => $user->getRoleNames()->first() ?? 'unknown',
+            'role'              => $role,
             'action'            => $action,
             'description'       => $desc,
             'new_values'        => $extra ?: null,

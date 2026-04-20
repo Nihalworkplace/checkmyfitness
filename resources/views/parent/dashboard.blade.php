@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 @section('title', "My Child's Health")
 @section('page-title', 'Health Dashboard')
 
@@ -102,10 +102,10 @@ $typeIcons = [
           @foreach($allCheckups as $c)
             @php
               $drType  = $c->doctor?->doctor_type;
-              $drLabel = $drType ? (\App\Models\User::DOCTOR_TYPES[$drType] ?? 'Doctor') : 'Doctor';
+              $drLabel = $drType ? (\App\Models\Doctor::DOCTOR_TYPES[$drType] ?? 'Doctor') : 'Doctor';
               $drColor = $typeColors[$drType] ?? '#6B7280';
               $drIcon  = $typeIcons[$drType] ?? '🩺';
-              $sections = \App\Models\User::DOCTOR_TYPE_SECTIONS[$drType] ?? [];
+              $sections = \App\Models\Doctor::DOCTOR_TYPE_SECTIONS[$drType] ?? [];
             @endphp
             <div style="padding:10px 0;border-bottom:1px solid var(--lgr);">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
@@ -113,7 +113,7 @@ $typeIcons = [
                   <div style="width:32px;height:32px;border-radius:9px;background:{{ $drColor }}18;border:1px solid {{ $drColor }}33;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">{{ $drIcon }}</div>
                   <div>
                     <div class="fw-700 fs-13" style="color:var(--dk);">{{ $drLabel }}</div>
-                    <div class="meta">{{ $c->checkup_date->format('d M Y') }} · Dr. {{ $c->doctor->name ?? '—' }}</div>
+                    <div class="meta">{{ $c->checkup_date->format('d M Y') }} · Dr. {{ $c->doctor?->name ?? '—' }}</div>
                   </div>
                 </div>
                 @if($c->overall_score)

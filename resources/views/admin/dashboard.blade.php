@@ -37,10 +37,10 @@
     @forelse($activeSessions as $sess)
       <div class="list-row">
         <div class="avatar avatar--md avatar--blue">
-          {{ strtoupper(substr($sess->doctor->name, 0, 1)) }}
+          {{ strtoupper(substr($sess->doctor?->name ?? '?', 0, 1)) }}
         </div>
         <div class="flex-auto">
-          <div class="list-row__title">Dr. {{ $sess->doctor->name }}</div>
+          <div class="list-row__title">Dr. {{ $sess->doctor?->name ?? 'Unknown' }}</div>
           <div class="list-row__sub">{{ $sess->school_name }} · Exp: {{ $sess->expires_at->inDisplayTz()->format('H:i') }}</div>
         </div>
         <div class="list-row__right">
@@ -66,7 +66,7 @@
     @foreach($recentLogs->take(12) as $log)
       <div class="list-row fs-12">
         <div class="flex-auto">
-          <span class="fw-600">{{ $log->user->name }}</span>
+          <span class="fw-600">{{ $log->actor?->name ?? 'Unknown' }}</span>
           <span class="text-muted"> — {{ $log->action_label }}</span>
           @if($log->doctorSession)
             <span class="badge bb" style="font-size:9px;margin-left:4px;">{{ $log->doctorSession->session_code }}</span>
@@ -138,8 +138,8 @@
         @forelse($recentSessions as $sess)
           <tr>
             <td>
-              <strong>Dr. {{ $sess->doctor->name }}</strong><br />
-              <span class="meta">{{ $sess->doctor->staff_code }}</span>
+              <strong>Dr. {{ $sess->doctor?->name ?? 'Unknown' }}</strong><br />
+              <span class="meta">{{ $sess->doctor?->staff_code }}</span>
             </td>
             <td>{{ $sess->school_name }}</td>
             <td>

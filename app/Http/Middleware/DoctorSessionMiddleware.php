@@ -6,21 +6,18 @@ use App\Models\DoctorSession;
 use App\Services\DoctorSessionService;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Validates doctor session on EVERY request to doctor routes.
- * Immediately logs out if session is expired or revoked.
- */
 class DoctorSessionMiddleware
 {
     public function __construct(private DoctorSessionService $sessionService) {}
 
     public function handle(Request $request, Closure $next): Response
     {
-        $user = $request->user();
+        $doctor = Auth::guard('doctor')->user();
 
-        if (! $user || ! $user->isDoctor()) {
+        if (! $doctor) {
             return redirect()->route('login')->withErrors(['error' => 'Access denied.']);
         }
 
@@ -36,32 +33,27 @@ class DoctorSessionMiddleware
             return $this->forceLogout($request, 'Session not found. Please log in again.');
         }
 
-        if ($doctorSession->doctor_id !== $user->id) {
+        if ($doctorSession->doctor_id !== $doctor->id) {
             return $this->forceLogout($request, 'Session mismatch detected.');
         }
 
-        // Check expiry
         if ($doctorSession->isExpired()) {
             $doctorSession->update(['status' => 'expired']);
-            $this->sessionService->log($user, $doctorSession, 'session_expired', 'Session expired — doctor forced logout');
+            $this->sessionService->log($doctor, $doctorSession, 'session_expired', 'Session expired — doctor forced logout');
             return $this->forceLogout($request, 'Your session has expired. Please contact admin for a new session code.');
         }
 
-        // Check revoked
         if ($doctorSession->isRevoked()) {
-            $this->sessionService->log($user, $doctorSession, 'session_revoked', 'Session revoked — doctor forced logout');
+            $this->sessionService->log($doctor, $doctorSession, 'session_revoked', 'Session revoked — doctor forced logout');
             return $this->forceLogout($request, 'Your session has been revoked by admin. Please contact your administrator.');
         }
 
-        // Check status
         if (! in_array($doctorSession->status, ['active', 'pending'])) {
             return $this->forceLogout($request, 'Session is no longer active.');
         }
 
-        // Touch last activity
         $doctorSession->touchActivity();
 
-        // Bind session to request for controllers
         $request->attributes->set('doctor_session', $doctorSession);
         app()->instance('doctor_session', $doctorSession);
 
@@ -70,7 +62,7 @@ class DoctorSessionMiddleware
 
     private function forceLogout(Request $request, string $message): Response
     {
-        auth()->logout();
+        Auth::guard('doctor')->logout();
         session()->invalidate();
         session()->regenerateToken();
 

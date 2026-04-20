@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\School;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SchoolController extends Controller
 {
     public function index(Request $request)
     {
-        $schools = School::when($request->search, fn($q, $s) =>
+        $schools = School::where('admin_id', Auth::id())
+            ->when($request->search, fn($q, $s) =>
                 $q->where('name', 'like', "%{$s}%")
                   ->orWhere('city', 'like', "%{$s}%")
             )
@@ -41,7 +43,7 @@ class SchoolController extends Controller
             'notes'           => 'nullable|string|max:1000',
         ]);
 
-        $school = School::create($data + ['is_active' => true]);
+        $school = School::create($data + ['admin_id' => Auth::id(), 'is_active' => true]);
 
         return redirect()->route('admin.schools.index')
                          ->with('success', "School \"{$school->name}\" added successfully.");

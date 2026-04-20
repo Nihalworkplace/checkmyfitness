@@ -3,34 +3,48 @@
 namespace App\Http\Middleware;
 
 use App\Models\ActivityLog;
+use App\Models\Doctor;
+use App\Models\Guardian;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Automatically logs page views and significant actions for all authenticated users.
- */
 class ActivityLogMiddleware
 {
-    // Routes to skip (avoid logging for every AJAX/minor request)
-    private array $skipActions = [
-        'heartbeat', 'notification', '_debugbar',
-    ];
+    private array $skipActions = ['heartbeat', 'notification', '_debugbar'];
 
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
 
-        if ($request->user() && $this->shouldLog($request)) {
-            $this->logActivity($request);
+        $actor = $this->getCurrentActor();
+
+        if ($actor && $this->shouldLog($request)) {
+            $this->logActivity($request, $actor);
         }
 
         return $response;
     }
 
+    private function getCurrentActor()
+    {
+        return Auth::guard('web')->user()
+            ?? Auth::guard('doctor')->user()
+            ?? Auth::guard('parent')->user();
+    }
+
+    private function getActorRole($actor): string
+    {
+        return match (true) {
+            $actor instanceof Doctor   => 'doctor',
+            $actor instanceof Guardian => 'parent',
+            default                    => 'admin',
+        };
+    }
+
     private function shouldLog(Request $request): bool
     {
-        // Skip GET requests to minor endpoints, only log writes and key views
         if ($request->isMethod('GET') && ! $this->isSignificantView($request)) {
             return false;
         }
@@ -55,20 +69,18 @@ class ActivityLogMiddleware
         return false;
     }
 
-    private function logActivity(Request $request): void
+    private function logActivity(Request $request, $actor): void
     {
-        $user = $request->user();
         $doctorSession = session('doctor_session_id')
             ? \App\Models\DoctorSession::find(session('doctor_session_id'))
             : null;
 
-        $action = $this->guessAction($request);
-
         ActivityLog::create([
-            'user_id'           => $user->id,
+            'actor_type'        => get_class($actor),
+            'actor_id'          => $actor->getAuthIdentifier(),
             'doctor_session_id' => $doctorSession?->id,
-            'role'              => $user->getRoleNames()->first() ?? 'unknown',
-            'action'            => $action,
+            'role'              => $this->getActorRole($actor),
+            'action'            => $this->guessAction($request),
             'description'       => strtoupper($request->method()) . ' ' . $request->path(),
             'ip_address'        => $request->ip(),
             'user_agent'        => $request->userAgent(),
@@ -92,11 +104,10 @@ class ActivityLogMiddleware
         }
 
         return match ($method) {
-            'POST'   => str_contains($path, 'checkup') ? 'create_checkup' : 'create_record',
-            'PUT',
-            'PATCH'  => str_contains($path, 'checkup') ? 'update_checkup' : 'update_record',
-            'DELETE' => str_contains($path, 'checkup') ? 'delete_checkup' : 'delete_record',
-            default  => strtolower($method) . '_action',
+            'POST'          => str_contains($path, 'checkup') ? 'create_checkup' : 'create_record',
+            'PUT', 'PATCH'  => str_contains($path, 'checkup') ? 'update_checkup' : 'update_record',
+            'DELETE'        => str_contains($path, 'checkup') ? 'delete_checkup' : 'delete_record',
+            default         => strtolower($method) . '_action',
         };
     }
 }

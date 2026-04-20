@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 @section('title', $student->name)
 @section('page-title', 'Student Profile')
 @section('sidebar-nav')@include('admin.partials.nav')@endsection
@@ -128,7 +128,7 @@
     @forelse($completed as $c)
       @php
         $drType   = $c->doctor?->doctor_type;
-        $drLabel  = $drType ? (\App\Models\User::DOCTOR_TYPES[$drType] ?? $drType) : null;
+        $drLabel  = $drType ? (\App\Models\Doctor::DOCTOR_TYPES[$drType] ?? $drType) : null;
         $drColor  = $typeColors[$drType] ?? '#6B7280';
       @endphp
       <div style="padding:14px 0;border-bottom:1px solid var(--lgr);">
@@ -140,7 +140,7 @@
           <div class="flex-auto">
             <div class="fw-700 fs-13">{{ $c->checkup_date->format('d M Y') }}</div>
             <div class="meta" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-              <span>Dr. {{ $c->doctor->name ?? '—' }}</span>
+              <span>Dr. {{ $c->doctor?->name ?? '—' }}</span>
               @if($drLabel)
                 <span style="display:inline-block;font-size:10px;font-weight:700;background:{{ $drColor }}18;color:{{ $drColor }};padding:1px 6px;border-radius:12px;border:1px solid {{ $drColor }}33;">{{ $drLabel }}</span>
               @endif
@@ -165,7 +165,7 @@
 
         {{-- Parameters by section --}}
         @php
-          $sections = \App\Models\User::DOCTOR_TYPE_SECTIONS[$drType] ?? [];
+          $sections = \App\Models\Doctor::DOCTOR_TYPE_SECTIONS[$drType] ?? [];
         @endphp
         <div style="margin-top:10px;margin-left:56px;display:flex;flex-wrap:wrap;gap:8px;">
           @if(in_array('physical', $sections) && $c->height_cm)

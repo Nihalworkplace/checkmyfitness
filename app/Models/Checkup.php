@@ -79,12 +79,14 @@ class Checkup extends Model
         return $this->belongsTo(Student::class, 'student_id');
     }
 
-    /**
-     * Get the doctor who performed this checkup.
-     */
+    public function admin()
+    {
+        return $this->hasOneThrough(User::class, Doctor::class, 'id', 'id', 'doctor_id', 'admin_id');
+    }
+
     public function doctor()
     {
-        return $this->belongsTo(User::class, 'doctor_id');
+        return $this->belongsTo(Doctor::class, 'doctor_id');
     }
 
     /**

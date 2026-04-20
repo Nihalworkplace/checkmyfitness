@@ -15,11 +15,21 @@
 <div class="sb-overlay" id="sb-overlay" onclick="closeSB()"></div>
 
 <div class="sidebar" id="sidebar">
+    @php
+        $currentUser = \Illuminate\Support\Facades\Auth::guard('web')->user()
+            ?? \Illuminate\Support\Facades\Auth::guard('doctor')->user()
+            ?? \Illuminate\Support\Facades\Auth::guard('parent')->user();
+        $currentRole = \Illuminate\Support\Facades\Auth::guard('doctor')->check() ? 'doctor'
+            : (\Illuminate\Support\Facades\Auth::guard('parent')->check() ? 'parent' : 'admin');
+        $roleColors  = ['admin' => ['bg' => '#8B5CF622', 'fg' => '#8B5CF6', 'av' => '#8B5CF6'],
+                        'doctor'=> ['bg' => '#3B82F622', 'fg' => '#3B82F6', 'av' => '#3B82F6'],
+                        'parent'=> ['bg' => '#1D9E7522', 'fg' => '#1D9E75', 'av' => '#1D9E75']];
+        $rc = $roleColors[$currentRole] ?? $roleColors['admin'];
+    @endphp
     <div class="sb-logo">
         <div class="sb-brand">CheckMy<span>Fitness</span></div>
-        @php $roleLabel = auth()->user()->getRoleNames()->first(); @endphp
-        <div class="sb-role" style="background:{{ match($roleLabel) { 'admin'=>'#8B5CF622','doctor'=>'#3B82F622',default=>'#1D9E7522' } }};color:{{ match($roleLabel) { 'admin'=>'#8B5CF6','doctor'=>'#3B82F6',default=>'#1D9E75' } }};">
-            {{ ucfirst($roleLabel) }}
+        <div class="sb-role" style="background:{{ $rc['bg'] }};color:{{ $rc['fg'] }};">
+            {{ ucfirst($currentRole) }}
         </div>
     </div>
 
@@ -29,10 +39,10 @@
 
     <div class="sb-foot">
         <div class="sb-user">
-            <div class="sb-av" style="background:{{ match($roleLabel) { 'admin'=>'#8B5CF6','doctor'=>'#3B82F6',default=>'#1D9E75' } }};">
-                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+            <div class="sb-av" style="background:{{ $rc['av'] }};">
+                {{ strtoupper(substr($currentUser?->name ?? '?', 0, 1)) }}
             </div>
-            <div class="sb-uname">{{ auth()->user()->name }}</div>
+            <div class="sb-uname">{{ $currentUser?->name ?? '' }}</div>
         </div>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
@@ -48,7 +58,7 @@
             <div class="tb-title">@yield('page-title', 'Dashboard')</div>
         </div>
         <div>
-            @if(auth()->user()->isDoctor() && session('doctor_session_id'))
+            @if($currentRole === 'doctor' && session('doctor_session_id'))
                 @php $ds = \App\Models\DoctorSession::find(session('doctor_session_id')); @endphp
                 @if($ds)
                     <span style="font-size:12px;background:#EFF6FF;color:#1E40AF;padding:5px 12px;border-radius:20px;font-weight:700;">
@@ -80,7 +90,7 @@
 <script src="{{ asset('js/app.js') }}"></script>
 
 {{-- Doctor session expiry countdown (uses Blade data — must stay in template) --}}
-@if(auth()->user()?->isDoctor() && session('doctor_session_id'))
+@if($currentRole === 'doctor' && session('doctor_session_id'))
     @php $ds2 = \App\Models\DoctorSession::find(session('doctor_session_id')); @endphp
     @if($ds2 && !$ds2->isExpired())
         <script>

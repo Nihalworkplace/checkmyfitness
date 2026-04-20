@@ -82,7 +82,7 @@
         <tbody>
           @foreach($sessions as $sess)
             <tr>
-              <td><strong>Dr. {{ $sess->doctor->name }}</strong></td>
+              <td><strong>Dr. {{ $sess->doctor?->name ?? 'Unknown' }}</strong></td>
               <td><code class="code-pill">{{ $sess->session_code }}</code></td>
               <td>{{ $sess->visit_date->format('d M Y') }}</td>
               <td>

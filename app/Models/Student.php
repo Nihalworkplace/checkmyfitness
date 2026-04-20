@@ -12,6 +12,7 @@ class Student extends Model
     use SoftDeletes;
 
     protected $fillable = [
+        'admin_id',
         'parent_id',
         'reference_code',
         'name',
@@ -30,9 +31,14 @@ class Student extends Model
         'is_active'     => 'boolean',
     ];
 
+    public function admin(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'admin_id');
+    }
+
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'parent_id');
+        return $this->belongsTo(Guardian::class, 'parent_id');
     }
 
     public function checkups(): HasMany
@@ -52,9 +58,9 @@ class Student extends Model
 
     public static function generateReferenceCode(string $classSection, int $year = null): string
     {
-        $year   = $year ?? date('Y');
-        $class  = strtoupper(str_replace([' ', '/'], '', $classSection));
-        $seq    = str_pad(Student::count() + 1, 3, '0', STR_PAD_LEFT);
+        $year  = $year ?? date('Y');
+        $class = strtoupper(str_replace([' ', '/'], '', $classSection));
+        $seq   = str_pad(Student::count() + 1, 3, '0', STR_PAD_LEFT);
         return "CMF-{$year}-{$class}-{$seq}";
     }
 }

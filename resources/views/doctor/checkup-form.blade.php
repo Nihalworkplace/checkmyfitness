@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 @section('title','Checkup — '.$student->name)
 @section('page-title','Student Checkup')
 
@@ -16,9 +16,9 @@
 
 @php
   // Sections this doctor can access
-  $sections = \App\Models\User::DOCTOR_TYPE_SECTIONS[$doctorType] ?? [];
+  $sections = \App\Models\Doctor::DOCTOR_TYPE_SECTIONS[$doctorType] ?? [];
   $canSee = fn(string $s): bool => in_array($s, $sections);
-  $typeLabel = \App\Models\User::DOCTOR_TYPES[$doctorType] ?? 'Unknown';
+  $typeLabel = \App\Models\Doctor::DOCTOR_TYPES[$doctorType] ?? 'Unknown';
 @endphp
 
 {{-- Student header --}}

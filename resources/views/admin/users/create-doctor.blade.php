@@ -1,4 +1,4 @@
-{{-- resources/views/admin/users/create-doctor.blade.php --}}
+﻿{{-- resources/views/admin/users/create-doctor.blade.php --}}
 @extends('layouts.app')
 @section('title','Add Doctor')
 @section('page-title','Add New Doctor')
@@ -27,7 +27,7 @@
         <label class="form-label">Doctor Type / Specialisation <span class="req">*</span></label>
         <select name="doctor_type" class="form-input" required>
           <option value="">Select specialisation…</option>
-          @foreach(\App\Models\User::DOCTOR_TYPES as $value => $label)
+          @foreach(\App\Models\Doctor::DOCTOR_TYPES as $value => $label)
             <option value="{{ $value }}" {{ old('doctor_type') === $value ? 'selected' : '' }}>{{ $label }}</option>
           @endforeach
         </select>
