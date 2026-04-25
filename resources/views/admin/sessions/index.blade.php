@@ -39,7 +39,7 @@
             </td>
             <td>Dr. {{ $sess->doctor?->name ?? 'Unknown' }}<br/><span style="font-size:11px;color:var(--gr);">{{ $sess->doctor?->staff_code }}</span></td>
             <td>{{ $sess->school_name }}</td>
-            <td>{{ $sess->visit_date->format('d M y') }}</td>
+            <td>{{ ($sess->starts_at ?? $sess->created_at)->inDisplayTz()->format('d M y H:i') }}</td>
             <td style="white-space:nowrap;font-size:12px;">{{ $sess->expires_at->inDisplayTz()->format('d M y H:i') }}</td>
             <td>
               @php $b=['active'=>'bb','pending'=>'bb','expired'=>'bgr','revoked'=>'br','completed'=>'bg'][$sess->status_badge]??'bgr'; @endphp

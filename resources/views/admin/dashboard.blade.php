@@ -146,7 +146,7 @@
               <code class="code-pill">{{ $sess->session_code }}</code>
               @if($sess->is_reopened)<span class="badge by" style="margin-left:4px;">Reopened</span>@endif
             </td>
-            <td>{{ $sess->visit_date->format('d M Y') }}</td>
+            <td>{{ ($sess->starts_at ?? $sess->created_at)->inDisplayTz()->format('d M Y H:i') }}</td>
             <td>{{ $sess->expires_at->inDisplayTz()->format('d M H:i') }}</td>
             <td>
               @php $badge = ['active'=>'bb','pending'=>'bb','expired'=>'bgr','revoked'=>'br','completed'=>'bg'][$sess->status_badge] ?? 'bgr'; @endphp
@@ -170,9 +170,17 @@
             <td colspan="8">
               <form method="POST" action="{{ route('admin.sessions.reopen', $sess) }}" class="filter-bar" style="padding:8px 0;">
                 @csrf
+                @php
+                  $dbDashTz  = config('app.display_timezone');
+                  $dbDashNow = \Carbon\Carbon::now($dbDashTz);
+                @endphp
                 <div>
-                  <label class="form-label">New Visit Date <span class="req">*</span></label>
-                  <input type="date" name="visit_date" class="form-input" style="width:160px;" value="{{ date('Y-m-d') }}" required />
+                  <label class="form-label">Start Date &amp; Time <span class="req">*</span></label>
+                  <div style="display:flex;gap:6px;">
+                    <input type="date" name="session_start_date" class="form-input" style="width:130px;" value="{{ $dbDashNow->format('Y-m-d') }}" min="{{ $dbDashNow->format('Y-m-d') }}" required />
+                    <input type="time" name="session_start_time" class="form-input" style="width:110px;" value="{{ $dbDashNow->format('H:i') }}" required />
+                  </div>
+                  <div class="form-hint" style="font-size:10px;">{{ $dbDashTz }} ({{ $dbDashNow->format('T') }})</div>
                 </div>
                 <div class="flex-auto" style="min-width:200px;">
                   <label class="form-label">Admin Notes</label>

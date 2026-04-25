@@ -12,7 +12,7 @@
 <div style="background:var(--dk);border-radius:16px;padding:18px 22px;margin-bottom:18px;">
   <div style="font-size:10px;color:rgba(255,255,255,0.35);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;">Session Report</div>
   <div style="font-family:'Fraunces',serif;font-size:20px;font-weight:900;color:#fff;">{{ $doctorSession->school_name }}</div>
-  <div style="font-size:12px;color:rgba(255,255,255,0.45);">{{ $doctorSession->visit_date->format('d M Y') }} · Code: {{ $doctorSession->session_code }} · Dr. {{ auth()->user()->name }}</div>
+  <div style="font-size:12px;color:rgba(255,255,255,0.45);">{{ ($doctorSession->starts_at ?? $doctorSession->created_at)->inDisplayTz()->format('d M Y') }} · Code: {{ $doctorSession->session_code }} · Dr. {{ auth()->user()->name }}</div>
 </div>
 
 <div class="stat-grid" style="margin-bottom:18px;">

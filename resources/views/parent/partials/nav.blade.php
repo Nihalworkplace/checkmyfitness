@@ -19,10 +19,6 @@
        class="ni {{ request()->routeIs('parent.timeline') && $navStudentId == $stu->id ? 'active' : '' }}">
       <div class="ni-ico" style="background:rgba(59,130,246,0.2);">📈</div> Timeline
     </a>
-    <a href="{{ route('parent.rewards', $stu) }}"
-       class="ni {{ request()->routeIs('parent.rewards') && $navStudentId == $stu->id ? 'active' : '' }}">
-      <div class="ni-ico" style="background:rgba(245,158,11,0.2);">🎁</div> Rewards
-    </a>
   @endforeach
 @endif
 

@@ -11,6 +11,7 @@ use App\Models\School;
 use App\Models\Student;
 use App\Models\User;
 use App\Services\DoctorSessionService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -52,15 +53,31 @@ class SessionController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'doctor_ids'       => 'required|array|min:1',
-            'doctor_ids.*'     => 'exists:doctors,id',
-            'school_id'        => 'required|exists:schools,id',
-            'school_name'      => 'required|string|max:255',
-            'school_city'      => 'nullable|string|max:100',
-            'classes_assigned' => 'nullable|array',
-            'visit_date'       => 'required|date|after_or_equal:today',
-            'admin_notes'      => 'nullable|string|max:1000',
+            'doctor_ids'          => 'required|array|min:1',
+            'doctor_ids.*'        => 'exists:doctors,id',
+            'school_id'           => 'required|exists:schools,id',
+            'school_name'         => 'required|string|max:255',
+            'school_city'         => 'nullable|string|max:100',
+            'classes_assigned'    => 'nullable|array',
+            'session_start_date'  => 'required|date',
+            'session_start_time'  => 'required|date_format:H:i',
+            'admin_notes'         => 'nullable|string|max:1000',
         ]);
+
+        $displayTz = config('app.display_timezone');
+        $startsAt  = Carbon::createFromFormat(
+            'Y-m-d H:i',
+            $data['session_start_date'] . ' ' . $data['session_start_time'],
+            $displayTz
+        )->utc();
+
+        if ($startsAt->copy()->addMinutes(5)->isPast()) {
+            return back()
+                ->withErrors(['session_start_date' => 'Session start time cannot be in the past.'])
+                ->withInput();
+        }
+
+        $data['starts_at'] = $startsAt;
 
         $created = [];
         $skipped = [];
@@ -127,9 +144,23 @@ class SessionController extends Controller
     public function reopen(Request $request, DoctorSession $session)
     {
         $data = $request->validate([
-            'visit_date'  => 'required|date|after_or_equal:today',
-            'admin_notes' => 'nullable|string|max:1000',
+            'session_start_date' => 'required|date',
+            'session_start_time' => 'required|date_format:H:i',
+            'admin_notes'        => 'nullable|string|max:1000',
         ]);
+
+        $displayTz = config('app.display_timezone');
+        $startsAt  = Carbon::createFromFormat(
+            'Y-m-d H:i',
+            $data['session_start_date'] . ' ' . $data['session_start_time'],
+            $displayTz
+        )->utc();
+
+        if ($startsAt->copy()->addMinutes(5)->isPast()) {
+            return back()->withErrors(['session_start_date' => 'Session start time cannot be in the past.']);
+        }
+
+        $data['starts_at'] = $startsAt;
 
         $newSession = $this->sessionService->reopenSession($session, $data, auth()->user());
 

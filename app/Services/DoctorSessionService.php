@@ -19,6 +19,7 @@ class DoctorSessionService
     public function createSession(array $data, User $admin): DoctorSession
     {
         $expiryHours = (int) config('cmf.doctor_session_expiry_hours', 12);
+        $startsAt    = $data['starts_at'] ?? now();
         $session = DoctorSession::create([
             'doctor_id'        => $data['doctor_id'],
             'created_by'       => $admin->id,
@@ -26,8 +27,8 @@ class DoctorSessionService
             'school_name'      => $data['school_name'],
             'school_city'      => $data['school_city'] ?? null,
             'classes_assigned' => $data['classes_assigned'] ?? [],
-            'visit_date'       => $data['visit_date'],
-            'expires_at'       => now()->addHours($expiryHours),
+            'starts_at'        => $startsAt,
+            'expires_at'       => $startsAt->copy()->addHours($expiryHours),
             'status'           => 'pending',
             'admin_notes'      => $data['admin_notes'] ?? null,
         ]);
@@ -47,6 +48,7 @@ class DoctorSessionService
     public function reopenSession(DoctorSession $originalSession, array $data, User $admin): DoctorSession
     {
         $expiryHours = (int) config('cmf.doctor_session_expiry_hours', 12);
+        $startsAt    = $data['starts_at'] ?? now();
 
         $newSession = DoctorSession::create([
             'doctor_id'         => $originalSession->doctor_id,
@@ -56,8 +58,8 @@ class DoctorSessionService
             'school_name'       => $originalSession->school_name,
             'school_city'       => $originalSession->school_city,
             'classes_assigned'  => $data['classes_assigned'] ?? $originalSession->classes_assigned,
-            'visit_date'        => $data['visit_date'] ?? now()->toDateString(),
-            'expires_at'        => now()->addHours($expiryHours),
+            'starts_at'         => $startsAt,
+            'expires_at'        => $startsAt->copy()->addHours($expiryHours),
             'status'            => 'pending',
             'is_reopened'       => true,
             'admin_notes'       => $data['admin_notes'] ?? 'Reopened from session #' . $originalSession->id,
@@ -93,6 +95,11 @@ class DoctorSessionService
         if (! $session) {
             $this->log($doctor, null, 'login_failed', 'Invalid session code attempt', ['staff_code' => $staffCode]);
             return ['success' => false, 'message' => 'Invalid or expired session code. Contact admin for a new code.'];
+        }
+
+        if (! $session->isStarted()) {
+            $startsLocal = $session->starts_at->copy()->setTimezone(config('app.display_timezone'));
+            return ['success' => false, 'message' => 'Session not started yet. Valid from ' . $startsLocal->format('d M Y, h:i A') . '.'];
         }
 
         if ($session->isExpired()) {

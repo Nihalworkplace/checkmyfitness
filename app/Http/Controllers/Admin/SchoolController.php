@@ -54,7 +54,7 @@ class SchoolController extends Controller
         $school->load([]);
         $sessions = \App\Models\DoctorSession::with('doctor')
             ->where('school_name', $school->name)
-            ->latest('visit_date')
+            ->latest('starts_at')
             ->take(10)
             ->get();
 

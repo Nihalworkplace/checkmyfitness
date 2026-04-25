@@ -45,10 +45,10 @@ class School extends Model
     {
         $session = DoctorSession::where('school_name', $this->name)
             ->whereIn('status', ['completed', 'active'])
-            ->latest('visit_date')
+            ->latest('starts_at')
             ->first();
 
-        return $session ? $session->visit_date->format('M Y') : null;
+        return $session ? ($session->starts_at ?? $session->created_at)->inDisplayTz()->format('M Y') : null;
     }
 
     /** Count of health alerts from students at this school */

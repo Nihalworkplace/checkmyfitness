@@ -16,7 +16,7 @@ class DoctorSession extends Model
         'school_name',
         'school_city',
         'classes_assigned',
-        'visit_date',
+        'starts_at',
         'expires_at',
         'activated_at',
         'last_activity_at',
@@ -26,7 +26,7 @@ class DoctorSession extends Model
     ];
 
     protected $casts = [
-        'visit_date'        => 'date',
+        'starts_at'         => 'datetime',
         'expires_at'        => 'datetime',
         'activated_at'      => 'datetime',
         'last_activity_at'  => 'datetime',
@@ -94,10 +94,16 @@ class DoctorSession extends Model
         return $this->status === 'revoked';
     }
 
+    public function isStarted(): bool
+    {
+        return ! $this->starts_at || $this->starts_at->isPast();
+    }
+
     public function canBeUsed(): bool
     {
         return in_array($this->status, ['pending', 'active'])
-            && ! $this->isExpired();
+            && ! $this->isExpired()
+            && $this->isStarted();
     }
 
     public function markActivated(): void

@@ -147,7 +147,7 @@ class DatabaseSeeder extends Seeder
                 'school_name'      => 'DPS Vadodara',
                 'school_city'      => 'Vadodara',
                 'classes_assigned' => ['6A', '6B', '7A', '7B'],
-                'visit_date'       => now()->toDateString(),
+                'starts_at'        => now(),
                 'expires_at'       => now()->addHours(12),
                 'status'           => 'pending',
                 'admin_notes'      => 'Demo session for testing',

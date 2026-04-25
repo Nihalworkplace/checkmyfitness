@@ -84,7 +84,7 @@
             <tr>
               <td><strong>Dr. {{ $sess->doctor?->name ?? 'Unknown' }}</strong></td>
               <td><code class="code-pill">{{ $sess->session_code }}</code></td>
-              <td>{{ $sess->visit_date->format('d M Y') }}</td>
+              <td>{{ ($sess->starts_at ?? $sess->created_at)->inDisplayTz()->format('d M Y H:i') }}</td>
               <td>
                 @php $badge = ['active'=>'bb','pending'=>'bb','expired'=>'bgr','revoked'=>'br','completed'=>'bg'][$sess->status] ?? 'bgr'; @endphp
                 <span class="badge {{ $badge }}">{{ ucfirst($sess->status) }}</span>

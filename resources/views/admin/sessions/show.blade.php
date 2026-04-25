@@ -13,7 +13,7 @@
     <div class="page-header__sub">
       Dr. {{ $session->doctor?->name ?? 'Unknown' }} ({{ $session->doctor?->staff_code }}) ·
       {{ $session->school_name }}, {{ $session->school_city }} ·
-      {{ $session->visit_date->format('d M Y') }}
+      {{ ($session->starts_at ?? $session->created_at)->inDisplayTz()->format('d M Y') }}
     </div>
     @if($session->is_reopened)
       <div class="page-header__meta">
@@ -52,10 +52,21 @@
   </div>
   <form method="POST" action="{{ route('admin.sessions.reopen', $session) }}">
     @csrf
+    @php
+      $reopenDisplayTz  = config('app.display_timezone');
+      $reopenNow        = \Carbon\Carbon::now($reopenDisplayTz);
+      $reopenTzShort    = $reopenNow->format('T');
+    @endphp
     <div class="form-grid">
       <div class="form-group">
-        <label class="form-label">New Visit Date <span class="req">*</span></label>
-        <input type="date" name="visit_date" class="form-input" value="{{ date('Y-m-d') }}" min="{{ date('Y-m-d') }}" required />
+        <label class="form-label">New Session Start — Date &amp; Time <span class="req">*</span></label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <input type="date" name="session_start_date" class="form-input"
+            value="{{ $reopenNow->format('Y-m-d') }}" min="{{ $reopenNow->format('Y-m-d') }}" required />
+          <input type="time" name="session_start_time" class="form-input"
+            value="{{ $reopenNow->format('H:i') }}" required />
+        </div>
+        <div class="form-hint">Times in <strong>{{ $reopenDisplayTz }} ({{ $reopenTzShort }})</strong></div>
       </div>
       <div class="form-group">
         <label class="form-label">Reason / Notes</label>
@@ -81,6 +92,7 @@
     @foreach([
       ['Created By',      $session->createdByAdmin->name . ' (Admin)'],
       ['Created At',      $session->created_at->inDisplayTz()->format('d M Y H:i')],
+      ['Starts At',       ($session->starts_at ?? $session->created_at)->inDisplayTz()->format('d M Y H:i')],
       ['Activated At',    $session->activated_at?->inDisplayTz()->format('d M Y H:i') ?? 'Not yet activated'],
       ['Last Activity',   $session->last_activity_at?->inDisplayTz()->format('d M Y H:i') ?? '—'],
       ['Expires At',      $session->expires_at->inDisplayTz()->format('d M Y H:i')],

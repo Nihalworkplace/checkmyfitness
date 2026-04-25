@@ -131,7 +131,6 @@ Route::prefix('parent')
     Route::get('/dashboard',                  [ParentDashboard::class, 'index'])->name('dashboard');
     Route::get('/report/{student}',           [ParentDashboard::class, 'report'])->name('report');
     Route::get('/timeline/{student}',         [ParentDashboard::class, 'timeline'])->name('timeline');
-    Route::get('/rewards/{student}',          [ParentDashboard::class, 'rewards'])->name('rewards');
 
     // Community feed
     Route::get('/community',                              [ParentCommunityController::class, 'index'])->name('community.index');

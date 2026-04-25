@@ -75,8 +75,20 @@
           <div id="doctor-types-summary" style="display:none;margin-top:8px;padding:8px 12px;background:var(--lgr);border-radius:8px;font-size:12px;"></div>
         </div>
         <div class="form-group">
-          <label class="form-label">Visit Date <span class="req">*</span></label>
-          <input type="date" name="visit_date" class="form-input" value="{{ old('visit_date', date('Y-m-d')) }}" min="{{ date('Y-m-d') }}" required/>
+          <label class="form-label">Session Start — Date &amp; Time <span class="req">*</span></label>
+          @php
+            $displayTz   = config('app.display_timezone');
+            $nowDisplay  = \Carbon\Carbon::now($displayTz);
+            $tzShort     = $nowDisplay->format('T'); // e.g. IST
+          @endphp
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <input type="date" name="session_start_date" class="form-input"
+              value="{{ old('session_start_date', $nowDisplay->format('Y-m-d')) }}"
+              min="{{ $nowDisplay->format('Y-m-d') }}" required/>
+            <input type="time" name="session_start_time" class="form-input"
+              value="{{ old('session_start_time', $nowDisplay->format('H:i')) }}" required/>
+          </div>
+          <div class="form-hint">Times are in <strong>{{ $displayTz }} ({{ $tzShort }})</strong>. Session expires {{ (int) config('cmf.doctor_session_expiry_hours', 12) }}h after this start time.</div>
         </div>
       </div>
 

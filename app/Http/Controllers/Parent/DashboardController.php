@@ -44,13 +44,6 @@ class DashboardController extends Controller
         return view('parent.timeline', compact('student', 'checkups'));
     }
 
-    public function rewards(Student $student)
-    {
-        $this->authorizeStudent($student);
-
-        return view('parent.rewards', compact('student'));
-    }
-
     private function authorizeStudent(Student $student): void
     {
         if ($student->parent_id !== Auth::guard('parent')->id()) {

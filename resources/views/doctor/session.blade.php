@@ -25,7 +25,7 @@
       @if($doctorSession->classes_assigned) — {{ implode(', ', $doctorSession->classes_assigned) }} @endif
     </div>
     <div class="session-banner__sub">
-      {{ $doctorSession->visit_date->format('d M Y') }} · Code: {{ $doctorSession->session_code }} · Expires: {{ $doctorSession->expires_at->inDisplayTz()->format('H:i') }}
+      {{ ($doctorSession->starts_at ?? $doctorSession->created_at)->inDisplayTz()->format('d M Y') }} · Code: {{ $doctorSession->session_code }} · Expires: {{ $doctorSession->expires_at->inDisplayTz()->format('H:i') }}
     </div>
   </div>
   <div class="session-counters">
