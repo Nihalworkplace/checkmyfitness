@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\CommunityController as AdminCommunityController;
 use App\Http\Controllers\Admin\ImportController as AdminImportController;
 use App\Http\Controllers\Doctor\CheckupController;
 use App\Http\Controllers\Parent\DashboardController as ParentDashboard;
+use App\Http\Controllers\Parent\CommunityController as ParentCommunityController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -131,4 +132,10 @@ Route::prefix('parent')
     Route::get('/report/{student}',           [ParentDashboard::class, 'report'])->name('report');
     Route::get('/timeline/{student}',         [ParentDashboard::class, 'timeline'])->name('timeline');
     Route::get('/rewards/{student}',          [ParentDashboard::class, 'rewards'])->name('rewards');
+
+    // Community feed
+    Route::get('/community',                              [ParentCommunityController::class, 'index'])->name('community.index');
+    Route::post('/community/{post}/like',                 [ParentCommunityController::class, 'like'])->name('community.like');
+    Route::post('/community/{post}/comment',              [ParentCommunityController::class, 'comment'])->name('community.comment');
+    Route::delete('/community/comment/{comment}',         [ParentCommunityController::class, 'deleteComment'])->name('community.comment.destroy');
 });

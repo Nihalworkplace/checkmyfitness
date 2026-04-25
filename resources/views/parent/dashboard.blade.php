@@ -3,23 +3,7 @@
 @section('page-title', 'Health Dashboard')
 
 @section('sidebar-nav')
-@if($students->isNotEmpty())
-  @foreach($students as $stu)
-    <div class="nb-label">{{ $stu->name }}</div>
-    <a href="{{ route('parent.dashboard') }}" class="ni {{ request()->routeIs('parent.dashboard') ? 'active' : '' }}">
-      <div class="ni-ico" style="background:rgba(29,158,117,0.2);">🏠</div> Overview
-    </a>
-    <a href="{{ route('parent.report', $stu) }}" class="ni {{ request()->routeIs('parent.report') ? 'active' : '' }}">
-      <div class="ni-ico" style="background:rgba(29,158,117,0.2);">📋</div> Health Report
-    </a>
-    <a href="{{ route('parent.timeline', $stu) }}" class="ni">
-      <div class="ni-ico" style="background:rgba(59,130,246,0.2);">📈</div> Timeline
-    </a>
-    <a href="{{ route('parent.rewards', $stu) }}" class="ni">
-      <div class="ni-ico" style="background:rgba(245,158,11,0.2);">🎁</div> Rewards
-    </a>
-  @endforeach
-@endif
+@include('parent.partials.nav')
 @endsection
 
 @section('content')

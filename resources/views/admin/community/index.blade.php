@@ -97,6 +97,26 @@
               <button type="submit" class="btn btn-sm" style="background:#FEF2F2;color:var(--r);">Remove</button>
             </form>
           </div>
+
+          {{-- Comments --}}
+          @if($post->postComments->isNotEmpty())
+            <div style="margin-top:10px;background:var(--lgr);border-radius:8px;padding:8px 12px;">
+              <div style="font-size:11px;font-weight:700;color:var(--gr);margin-bottom:6px;">💬 Comments ({{ $post->postComments->count() }})</div>
+              @foreach($post->postComments as $comment)
+                <div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;{{ !$loop->last ? 'border-bottom:1px solid var(--bd);' : '' }}">
+                  <div style="width:24px;height:24px;border-radius:50%;background:rgba(29,158,117,0.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--g);flex-shrink:0;">
+                    {{ strtoupper(substr($comment->author->name ?? 'P', 0, 1)) }}
+                  </div>
+                  <div style="flex:1;">
+                    <span style="font-size:11px;font-weight:600;color:var(--dk);">{{ $comment->author->name ?? 'Parent' }}</span>
+                    <span style="font-size:10px;color:var(--gr);margin-left:6px;">{{ $comment->created_at->diffForHumans() }}</span>
+                    <div style="font-size:12px;color:var(--dk);margin-top:2px;line-height:1.5;">{{ $comment->body }}</div>
+                  </div>
+                </div>
+              @endforeach
+            </div>
+          @endif
+
         </div>
       @empty
         <div style="text-align:center;padding:32px;color:var(--gr);">No posts yet. Create the first one!</div>

@@ -2,10 +2,7 @@
 @section('title','Rewards')
 @section('page-title','Reward Store')
 @section('sidebar-nav')
-<a href="{{ route('parent.dashboard') }}" class="ni"><div class="ni-ico" style="background:rgba(29,158,117,0.2);">🏠</div> Overview</a>
-<a href="{{ route('parent.report', $student) }}" class="ni"><div class="ni-ico" style="background:rgba(29,158,117,0.2);">📋</div> Health Report</a>
-<a href="{{ route('parent.timeline', $student) }}" class="ni"><div class="ni-ico" style="background:rgba(59,130,246,0.2);">📈</div> Timeline</a>
-<a href="{{ route('parent.rewards', $student) }}" class="ni active" style="background:rgba(245,158,11,0.15);color:#fff;"><div class="ni-ico" style="background:rgba(245,158,11,0.3);">🎁</div> Rewards</a>
+@include('parent.partials.nav')
 @endsection
 
 @section('content')

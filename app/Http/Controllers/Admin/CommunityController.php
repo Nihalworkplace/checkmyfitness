@@ -12,7 +12,7 @@ class CommunityController extends Controller
 {
     public function index()
     {
-        $posts  = CommunityPost::with('author')->latest()->paginate(20);
+        $posts  = CommunityPost::with(['author', 'postComments.author'])->latest()->paginate(20);
         $schools = School::where('admin_id', Auth::id())->where('is_active', true)->orderBy('name')->pluck('name');
 
         return view('admin.community.index', compact('posts', 'schools'));
